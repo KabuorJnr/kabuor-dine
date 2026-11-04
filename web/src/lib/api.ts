@@ -34,19 +34,49 @@ export type MockAccount = {
   session: Session;
 };
 
-// One-click test restaurant account for local development:
+// One-click demo restaurant accounts on the real Neon database:
 export const MOCK_ACCOUNTS: MockAccount[] = !import.meta.env.DEV ? [] : [
   {
-    id: 'dine-chef',
-    name: 'Chef Rooney',
-    email: 'chef@kabuor.co.ke',
+    id: 'dine-demo',
+    name: 'Rooney Kabuor',
+    email: 'demo@kabuor.co.ke',
     role: 'Owner',
-    roleTitle: 'Restaurant Owner & Chef',
+    roleTitle: 'Restaurant Owner (Demo)',
     emoji: '🍽️',
     companyName: 'Ziwa Grill & Lounge',
     password: 'admin',
     session: {
       token: 'demo-dine-token',
+      isLocal: false,
+      user: {
+        id: '33333333-3333-3333-3333-333333333333',
+        name: 'Rooney Kabuor (Demo)',
+        email: 'demo@kabuor.co.ke',
+        role: 'Owner',
+        language: 'en',
+        permissions: ['read', 'sales.view', 'sell', 'pos', 'crm', 'finance', 'reports', 'stock.view', 'stock', 'buy.view', 'buy', 'make', 'people', 'fleet.view', 'fleet', 'admin', 'verified.view', 'verified.share', 'dine', 'dine.manage'],
+      },
+      company: {
+        id: '11111111-1111-1111-1111-111111111111',
+        name: 'Ziwa Grill & Lounge',
+        kraPin: 'P051234567Z',
+        vatRegistered: true,
+        industry: 'restaurant',
+        product: 'dine',
+      },
+    },
+  },
+  {
+    id: 'dine-chef',
+    name: 'Chef Rooney',
+    email: 'chef@kabuor.co.ke',
+    role: 'Owner',
+    roleTitle: 'Head Chef',
+    emoji: '👨‍🍳',
+    companyName: 'Ziwa Grill & Lounge',
+    password: 'admin',
+    session: {
+      token: 'demo-chef-token',
       isLocal: false,
       user: {
         id: '22222222-2222-2222-2222-222222222222',
