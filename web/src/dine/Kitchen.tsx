@@ -56,7 +56,7 @@ export default function Kitchen() {
   return (
     <div className="min-h-[calc(100vh-52px)] px-3 py-4 text-white sm:px-5">
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <h1 className="mr-2 flex items-center gap-2 text-xl font-bold"><ChefHat className="h-5 w-5 text-orange-300" /> {data?.station ?? 'All stations'}</h1>
+        <h1 className="mr-2 flex items-center gap-2 text-xl font-bold"><ChefHat className="h-5 w-5 text-[#D6B394]" /> {data?.station ?? 'All stations'}</h1>
         <div className="no-scrollbar flex gap-1 overflow-x-auto rounded-lg bg-white/8 p-1" role="tablist" aria-label="Station">
           {['', ...(data?.stations ?? [])].map((s) => (
             <button key={s || 'all'} role="tab" aria-selected={station === s} onClick={() => choose(s)}
@@ -88,7 +88,7 @@ export default function Kitchen() {
           const m = minutes(t);
           const late = m >= 20 ? 'bad' : m >= 10 ? 'warn' : 'ok';
           return (
-            <article key={t.id} className={cn('overflow-hidden rounded-xl bg-white text-ink shadow-lg ring-4', late === 'bad' ? 'ring-red-500' : late === 'warn' ? 'ring-amber-400' : t.status === 'New' ? 'ring-orange-400' : 'ring-transparent')}>
+            <article key={t.id} className={cn('overflow-hidden rounded-xl bg-white text-ink shadow-lg ring-4', late === 'bad' ? 'ring-red-500' : late === 'warn' ? 'ring-amber-400' : t.status === 'New' ? 'ring-[#C29772]' : 'ring-transparent')}>
               <header className={cn('flex items-center justify-between gap-2 px-4 py-2.5', late === 'bad' ? 'bg-red-600 text-white' : late === 'warn' ? 'bg-amber-400' : 'bg-dine-soft')}>
                 <span className="text-xl font-extrabold">{t.table}</span>
                 <span className="text-right text-sm">

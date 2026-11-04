@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router';
 import { BarChart3, BellRing, Check, ChefHat, QrCode, ShieldCheck, Smartphone, UtensilsCrossed } from 'lucide-react';
 import { useApi } from '../lib/api';
+import { DineLogo, DineMark } from './Logo';
 
 const STEPS = [
   { icon: QrCode, title: 'Scan', text: 'The guest scans the card on the table. The menu opens on their phone: no app, no sign-in.' },
@@ -30,27 +31,27 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-white text-ink">
-      <header className="bg-dine-night text-white">
+      <header className="bg-gradient-to-b from-dine-soft via-cream to-white text-espresso">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
-          <span className="flex items-center gap-2 font-bold"><span className="grid h-8 w-8 place-items-center rounded-lg bg-dine">D</span> Kabuor Dine</span>
+          <DineLogo size="md" />
           <nav className="flex items-center gap-2 text-sm font-semibold">
-            <Link to="/signin" className="rounded-md px-3 py-2 text-white/80 hover:text-white">Sign in</Link>
+            <Link to="/signin" className="rounded-md px-3 py-2 text-ink-2 hover:text-ink">Sign in</Link>
             <Link to="/signup" className="btn bg-dine px-4 py-2 text-white hover:bg-dine-hover">Start</Link>
           </nav>
         </div>
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-8 pb-16 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:pt-12">
           <div>
-            <p className="text-sm font-semibold tracking-wide text-orange-300">For restaurants, cafés, hotels and bars</p>
-            <h1 className="mt-3 text-4xl leading-tight font-bold tracking-tight sm:text-5xl">Guests order from the table. The kitchen sees it at once.</h1>
-            <p className="mt-5 max-w-xl text-lg text-white/70">A QR menu on every table, kitchen and bar screens, and the bill paid by M-Pesa from the guest’s own phone. Every sale lands in your books, with stock and KRA eTIMS taken care of.</p>
+            <p className="text-sm font-semibold tracking-wide text-dine">For restaurants, cafés, hotels and bars</p>
+            <h1 className="font-brand mt-3 text-4xl leading-[1.05] font-extrabold tracking-[-0.035em] sm:text-[56px]">Guests order from the table. The kitchen sees it at once.</h1>
+            <p className="mt-5 max-w-xl text-lg text-ink-2">A QR menu on every table, kitchen and bar screens, and the bill paid by M-Pesa from the guest’s own phone. Every sale lands in your books, with stock and KRA eTIMS taken care of.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/signup" className="btn bg-dine px-6 py-3 text-base text-white hover:bg-dine-hover">Start Kabuor Dine</Link>
-              <Link to="/signin" className="btn bg-white/10 px-6 py-3 text-base text-white hover:bg-white/15">Sign in</Link>
+              <Link to="/signin" className="btn btn-ghost px-6 py-3 text-base">Sign in</Link>
             </div>
-            <p className="mt-4 text-sm text-white/55">KSh {monthly.toLocaleString('en-KE')} a month per branch, paid by M-Pesa.</p>
+            <p className="mt-4 text-sm text-muted">KSh {monthly.toLocaleString('en-KE')} a month per branch, paid by M-Pesa.</p>
           </div>
           <div className="relative mx-auto w-full max-w-xl sm:pr-[14%] sm:pb-6">
-            <img src="/brand/dine-floor.webp" alt="The floor screen: every table, and which need a waiter now" className="w-full rounded-xl shadow-2xl ring-1 ring-white/10" />
+            <img src="/brand/dine-floor.webp" alt="The floor screen: every table, and which need a waiter now" className="w-full rounded-xl shadow-2xl ring-1 ring-dine/15" />
             <img src="/brand/dine-guest-phone.webp" alt="A guest's QR menu on a phone" className="absolute right-0 bottom-0 hidden w-[28%] rounded-2xl border-4 border-black shadow-2xl sm:block" />
           </div>
         </div>
@@ -106,7 +107,7 @@ export default function Landing() {
 
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-6 text-sm text-muted sm:px-6">
-          <span>© {new Date().getFullYear()} Kabuor Technologies · Kabuor Dine</span>
+          <span className="flex items-center gap-2"><DineMark className="h-5" /> © {new Date().getFullYear()} Kabuor Technologies · Kabuor Dine</span>
           <span className="flex gap-4"><Link to="/terms" className="hover:text-ink">Terms</Link><Link to="/privacy" className="hover:text-ink">Privacy</Link></span>
         </div>
       </footer>

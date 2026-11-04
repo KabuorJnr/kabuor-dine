@@ -7,6 +7,7 @@ import { useParams } from 'react-router';
 import { BellRing, Check, ChefHat, ChevronRight, Flame, Loader2, Minus, Plus, Receipt, Search, Smartphone, Star, Utensils, X } from 'lucide-react';
 import { cn, ksh } from '../lib/format';
 import { optionText, STATUS, type CartLine, type Dish, type Visit } from './lib';
+import { DineMark } from './Logo';
 
 type Menu = {
   restaurant: { name: string; phone: string; county: string; paybill: string; welcome: string };
@@ -41,6 +42,12 @@ export default function GuestMenu() {
   const [error, setError] = useState('');
   const [view, setView] = useState<'menu' | 'table'>('menu');
   const [search, setSearch] = useState('');
+  const [hint, setHint] = useState(() => { try { return !localStorage.getItem('kdine-hint-seen'); } catch { return true; } });
+  const [added, setAdded] = useState('');
+  const [justSent, setJustSent] = useState(false);
+  const closeHint = () => { setHint(false); try { localStorage.setItem('kdine-hint-seen', '1'); } catch { /* fine */ } };
+  useEffect(() => { if (!added) return; const t = window.setTimeout(() => setAdded(''), 1800); return () => window.clearTimeout(t); }, [added]);
+  useEffect(() => { if (!justSent) return; const t = window.setTimeout(() => setJustSent(false), 6000); return () => window.clearTimeout(t); }, [justSent]);
   const [current, setCurrent] = useState('');
   const [picking, setPicking] = useState<Dish | null>(null);
   const [suggest, setSuggest] = useState<Dish | null>(null);
@@ -86,6 +93,8 @@ export default function GuestMenu() {
       return same ? c.map((l) => (l === same ? { ...l, quantity: l.quantity + quantity } : l)) : [...c, { key, dish, quantity, choices, note }];
     });
     setPicking(null);
+    setAdded(`${quantity > 1 ? `${quantity} × ` : ''}${dish.name}`);
+    if (hint) closeHint();
     const s = dish.suggest && dishes.find((d) => d.id === dish.suggest!.id && !d.soldOut);
     setSuggest(s && !cart.some((l) => l.dish.id === s.id) ? s : null);
   };
@@ -115,15 +124,15 @@ export default function GuestMenu() {
   return (
     <Page>
       {/* Header: where you are */}
-      <header className="bg-dine-night px-5 pt-[calc(env(safe-area-inset-top)+1.25rem)] pb-5 text-white">
+      <header className="border-b border-dine/10 bg-gradient-to-b from-dine-soft to-cream px-5 pt-[calc(env(safe-area-inset-top)+1.25rem)] pb-5 text-espresso">
         <div className="mx-auto max-w-xl">
-          <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.16em] text-orange-200/85 uppercase">
-            <span className={cn('h-2 w-2 rounded-full', menu.open ? 'bg-green-400' : 'bg-white/40')} aria-hidden />
+          <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.16em] text-dine uppercase">
+            <span className={cn('h-2 w-2 rounded-full', menu.open ? 'bg-good' : 'bg-faint')} aria-hidden />
             {menu.table.name}{menu.table.area ? ` · ${menu.table.area}` : ''}
           </p>
-          <h1 className="mt-1.5 text-[26px] leading-tight font-bold tracking-tight">{menu.restaurant.name}</h1>
-          <p className="mt-1 text-sm text-white/70">{menu.restaurant.welcome || 'Order from your phone. We’ll bring it to your table.'}</p>
-          {!menu.open && <p className="mt-3 rounded-lg bg-white/10 px-3 py-2 text-sm">We’re not taking orders from the table right now. Please ask a waiter.</p>}
+          <h1 className="font-brand mt-1.5 text-[28px] leading-tight font-extrabold tracking-[-0.03em]">{menu.restaurant.name}</h1>
+          <p className="mt-1 text-sm text-ink-2/80">{menu.restaurant.welcome || 'Order from your phone. We’ll bring it to your table.'}</p>
+          {!menu.open && <p className="mt-3 rounded-lg bg-white px-3 py-2 text-sm ring-1 ring-dine/15">We’re not taking orders from the table right now. Please ask a waiter.</p>}
         </div>
       </header>
 
@@ -141,11 +150,11 @@ export default function GuestMenu() {
       )}
 
       {view === 'table' && visit ? (
-        <MyTable menu={menu} visit={visit} setVisit={setVisit} call={call} onMore={() => setView('menu')} />
+        <MyTable menu={menu} visit={visit} setVisit={setVisit} call={call} onMore={() => setView('menu')} justSent={justSent} />
       ) : (
         <main className="mx-auto max-w-xl pb-36">
           {/* Search and sections, kept in reach while scrolling */}
-          <div className={cn('sticky z-10 space-y-2.5 bg-paper/95 px-4 pt-3 pb-2.5 backdrop-blur', live ? 'top-[45px]' : 'top-0')}>
+          <div className={cn('sticky z-10 space-y-2.5 bg-cream/95 px-4 pt-3 pb-2.5 backdrop-blur', live ? 'top-[45px]' : 'top-0')}>
             <label className="relative block">
               <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-faint" />
               <input value={search} onChange={(e) => setSearch(e.target.value)} type="search" placeholder="Search the menu" aria-label="Search the menu"
@@ -155,13 +164,31 @@ export default function GuestMenu() {
               <nav className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4" aria-label="Menu sections">
                 {sections.map((c) => (
                   <button key={c} onClick={() => jump(c)} aria-current={current === c ? 'true' : undefined}
-                    className={cn('shrink-0 rounded-full px-3.5 py-1.5 text-sm font-semibold ring-1 transition', current === c ? 'bg-ink text-white ring-ink' : 'bg-white text-ink-2 ring-line')}>
+                    className={cn('shrink-0 rounded-full px-3.5 py-1.5 text-sm font-semibold ring-1 transition', current === c ? 'bg-espresso text-white ring-espresso' : 'bg-white text-ink-2 ring-dine/15')}>
                     {c}
                   </button>
                 ))}
               </nav>
             )}
           </div>
+
+          {hint && !live && !q && (
+            <section className="px-4 pt-2">
+              <div className="relative rounded-2xl bg-white p-4 ring-1 ring-dine/15">
+                <button onClick={closeHint} aria-label="Got it" className="absolute top-2.5 right-2.5 grid h-8 w-8 place-items-center rounded-full text-faint hover:bg-cream"><X className="h-4 w-4" /></button>
+                <p className="pr-8 font-semibold">Order right here, no app or sign-up</p>
+                <ol className="mt-3 grid grid-cols-3 gap-2 text-center text-xs text-muted">
+                  {([[Utensils, 'Choose', 'dishes and how you like them'], [ChefHat, 'Send', 'straight to the kitchen'], [Smartphone, 'Pay', 'by M-Pesa when you’re ready']] as const).map(([Icon, t, d], i) => (
+                    <li key={t} className="rounded-xl bg-cream px-2 py-3">
+                      <span className="mx-auto grid h-9 w-9 place-items-center rounded-full bg-dine-soft text-dine"><Icon className="h-[18px] w-[18px]" /></span>
+                      <span className="mt-1.5 block text-[13px] font-semibold text-ink">{i + 1}. {t}</span>
+                      <span className="mt-0.5 block leading-snug">{d}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </section>
+          )}
 
           {!q && popular.length > 0 && (
             <section className="px-4 pt-3">
@@ -208,8 +235,14 @@ export default function GuestMenu() {
           ))}
           {q && shown.length === 0 && <p className="px-6 py-16 text-center text-muted">Nothing on the menu matches “{search.trim()}”.</p>}
           {dishes.length === 0 && <p className="px-6 py-16 text-center text-muted">The menu is being prepared. Please ask a waiter.</p>}
-          <p className="px-6 pt-10 text-center text-xs text-faint">Prices include VAT · Powered by Kabuor Dine</p>
+          <p className="flex items-center justify-center gap-1.5 px-6 pt-10 text-center text-xs text-faint">Prices include VAT · <DineMark className="h-3.5" /> Powered by Kabuor Dine</p>
         </main>
+      )}
+
+      {added && !suggest && view === 'menu' && (
+        <div className="pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] z-30 flex justify-center px-4" role="status">
+          <span className="flex items-center gap-2 rounded-full bg-espresso px-4 py-2 text-sm font-semibold text-white shadow-lg"><Check className="h-4 w-4 text-[#D6B394]" /> Added {added}</span>
+        </div>
       )}
 
       {/* "Goes well with" */}
@@ -226,7 +259,7 @@ export default function GuestMenu() {
 
       {/* Basket bar */}
       {count > 0 && view === 'menu' && (
-        <div className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-paper via-paper/95 to-transparent px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
+        <div className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-cream via-cream/95 to-transparent px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
           <button onClick={() => setBasketOpen(true)} className="mx-auto flex w-full max-w-xl items-center justify-between rounded-2xl bg-dine px-4 py-3.5 font-semibold text-white shadow-lg shadow-dine/25 transition active:scale-[0.99]">
             <span className="flex items-center gap-2.5"><span className="grid h-7 min-w-7 place-items-center rounded-full bg-white/20 px-1.5 text-sm">{count}</span> View your order</span>
             <span className="num flex items-center gap-1">{ksh(total)} <ChevronRight className="h-4 w-4" /></span>
@@ -246,6 +279,7 @@ export default function GuestMenu() {
             setVisit(r.visit);
             setCart([]);
             setBasketOpen(false);
+            setJustSent(true);
             setView('table');
             window.scrollTo({ top: 0 });
           }} />
@@ -257,15 +291,15 @@ export default function GuestMenu() {
 const sectionId = (c: string) => `section-${c.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
 // A dish without a photo still gets a face: its initial on a warm tint chosen by its section, so the list has rhythm.
-const TINTS = ['#FDE7D9', '#E9F3E6', '#FFF1CC', '#E7EEFB', '#F5E6F0', '#E3F2F1'];
-const INKS = ['#9A3412', '#2F6B2A', '#8A5A00', '#2D4F9E', '#8B2F6B', '#1F6A64'];
+const TINTS = ['#F4E9DE', '#EFE6DA', '#F6ECDD', '#ECE4DA', '#F3E6DB', '#EEE8E1'];
+const INKS = ['#8F5F3E', '#6E5440', '#9A6A3A', '#5F4A3A', '#8A5A45', '#6B5B4E'];
 function Monogram({ name, category, className }: { name: string; category: string; className?: string }) {
   const i = [...(category || name)].reduce((n, ch) => n + ch.charCodeAt(0), 0) % TINTS.length;
   return <span aria-hidden className={cn('grid place-items-center rounded-xl text-xl font-bold', className)} style={{ background: TINTS[i], color: INKS[i] }}>{name.replace(/[^A-Za-z]/g, '').charAt(0).toUpperCase() || '•'}</span>;
 }
 
 function Page({ children }: { children: React.ReactNode }) {
-  return <div className="min-h-screen bg-paper text-ink">{children}</div>;
+  return <div className="min-h-screen bg-cream text-ink">{children}</div>;
 }
 
 /** A bottom sheet on a phone. */
@@ -391,8 +425,8 @@ function Basket({ menu, cart, setCart, onClose, onSend }: {
 }
 
 /** The guest's table: where each order has got to, the waiter at the tap of a button, and the bill. */
-function MyTable({ menu, visit, setVisit, call, onMore }: {
-  menu: Menu; visit: Visit; setVisit: (v: Visit) => void; call: <T>(path: string, body?: unknown) => Promise<T>; onMore: () => void;
+function MyTable({ menu, visit, setVisit, call, onMore, justSent }: {
+  menu: Menu; visit: Visit; setVisit: (v: Visit) => void; call: <T>(path: string, body?: unknown) => Promise<T>; onMore: () => void; justSent?: boolean;
 }) {
   const [phone, setPhone] = useState(() => { try { return localStorage.getItem('kdine-phone') ?? ''; } catch { return ''; } });
   const [busy, setBusy] = useState('');
@@ -414,6 +448,12 @@ function MyTable({ menu, visit, setVisit, call, onMore }: {
 
   return (
     <main className="mx-auto max-w-xl space-y-4 px-4 py-5 pb-24">
+      {justSent && (
+        <div className="flex items-center gap-3 rounded-2xl bg-good-soft p-4 ring-1 ring-good/20" role="status">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-good text-white"><Check className="h-5 w-5" /></span>
+          <span><span className="block font-semibold text-good">Order sent</span><span className="text-sm text-ink-2">{visit.orders.some((o) => o.status === 'AwaitingApproval') ? 'A waiter will confirm your table, then the kitchen starts.' : 'The kitchen has it. Follow it here.'}</span></span>
+        </div>
+      )}
       {/* Orders */}
       {visit.orders.map((o) => {
         const s = STATUS[o.status];

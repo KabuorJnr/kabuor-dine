@@ -4,6 +4,7 @@ import { ArrowLeft, BadgeCheck, ChefHat, QrCode, Receipt, Eye, EyeOff, KeyRound,
 import { api, setSession, useApi, MOCK_ACCOUNTS, type Session } from '../lib/api';
 import { cn, ksh } from '../lib/format';
 import { ErrorNote } from '../components/ui';
+import { DineLogo } from '../dine/Logo';
 
 const SUPPORT_PHONE = '0705 607 954';
 const SUPPORT_WHATSAPP = 'https://wa.me/254705607954';
@@ -74,7 +75,7 @@ export function Frame({ children, hideShowcase = false, dine = true }: { childre
       <div className={cn('w-full rounded-3xl bg-white p-2 shadow-[0_8px_40px_rgb(10_11_30/0.08)] ring-1 ring-line', hideShowcase ? 'max-w-[480px]' : 'grid max-w-[1040px] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]')}>
         <div className="flex min-w-0 flex-col px-5 pt-6 pb-4 sm:px-10 sm:pt-9">
           {dine
-            ? <span className="flex items-center gap-2 self-start"><span className="grid h-7 w-7 place-items-center rounded-lg bg-dine text-sm font-bold text-white">D</span><span className="font-bold">Kabuor Dine</span></span>
+            ? <Link to="/" className="self-start"><DineLogo size="sm" /></Link>
             : <img src="/brand/kabuor-erp-logo-blue.svg" alt="Kabuor ERP" className="h-6 w-auto self-start" />}
           <div className="flex flex-1 flex-col justify-center py-8">{children}</div>
           <footer className="flex items-center justify-between border-t border-line pt-4 text-xs text-faint">
@@ -94,22 +95,22 @@ export function Frame({ children, hideShowcase = false, dine = true }: { childre
 /** Kabuor Dine's side panel on sign-up: what a restaurant gets, in three lines. */
 function DineShowcase() {
   return (
-    <div className="hidden flex-col justify-between rounded-[20px] bg-dine-night p-9 text-white lg:flex">
+    <div className="hidden flex-col justify-between rounded-[20px] bg-gradient-to-br from-dine-soft to-cream p-9 text-espresso lg:flex">
       <div>
-        <p className="text-xs font-semibold tracking-[0.2em] text-orange-200/80 uppercase">Kabuor Dine</p>
-        <h2 className="mt-3 text-3xl leading-tight font-bold">Guests order from the table. The kitchen sees it at once. The bill pays itself.</h2>
+        <DineLogo size="md" tagline />
+        <h2 className="font-brand mt-6 text-3xl leading-tight font-extrabold tracking-[-0.03em]">Guests order from the table. The kitchen sees it at once. The bill pays itself.</h2>
       </div>
       <ul className="space-y-5">
         {([[QrCode, 'A QR menu on every table', 'Guests order on their own phone, with their choices: spice, sides, no onions.'],
           [ChefHat, 'Kitchen and bar screens', 'Each station sees its own tickets, oldest first, with a timer.'],
           [Receipt, 'M-Pesa at the table, eTIMS receipts', 'Every bill lands in your books, stock goes down, KRA signs it.']] as const).map(([Icon, t, d]) => (
           <li key={t} className="flex gap-3">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white/10"><Icon className="h-5 w-5 text-orange-300" /></span>
-            <span><span className="block font-semibold">{t}</span><span className="text-sm text-white/65">{d}</span></span>
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white shadow-sm ring-1 ring-dine/10"><Icon className="h-5 w-5 text-dine" /></span>
+            <span><span className="block font-semibold">{t}</span><span className="text-sm text-muted">{d}</span></span>
           </li>
         ))}
       </ul>
-      <p className="text-xs text-white/50">By Kabuor Technologies · on the same books as Kabuor ERP</p>
+      <p className="text-xs text-muted">By Kabuor Technologies · on the same books as Kabuor ERP</p>
     </div>
   );
 }

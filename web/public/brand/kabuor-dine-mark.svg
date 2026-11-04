@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" role="img" aria-label="Kabuor Dine">
+  <!-- Kabuor Dine mark: a serving cloche with a bold K on its dome, steam rising: the meal arriving at the table. -->
+  <defs>
+    <linearGradient id="kd-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C29772"/>
+      <stop offset="100%" stop-color="#8F5F3E"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="21" r="7" fill="#4A3426"/>
+  <path d="M12,76 Q12,30 60,27 Q108,30 108,76 Z" fill="url(#kd-grad)"/>
+  <rect x="4" y="78" width="112" height="11" rx="5.5" fill="#4A3426"/>
+  <path transform="translate(60 54) scale(0.62) translate(-69 -40)" d="M47,20 H59 V36 L75,20 H90 L71,39 L91,60 H76 L59,43 V60 H47 Z" fill="#FBF7F2"/>
+  <path d="M86,10 L90,4 M94,17 L101,14 M88,24 L95,25" stroke="#C29772" stroke-width="3" stroke-linecap="round"/>
+</svg>

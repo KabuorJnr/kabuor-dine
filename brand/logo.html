@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Kabuor Dine logo</title>
+<style>
+  @font-face { font-family: 'Bricolage'; src: url(fonts/bricolage.woff2) format('woff2'); font-weight: 200 800; }
+  @font-face { font-family: 'Fraunces'; src: url(fonts/fraunces-italic.woff2) format('woff2'); font-style: italic; font-weight: 100 900; }
+  :root { --espresso: #2E211A; --brown: #9C6B4A; --cream: #FBF7F2; --white: #FFFFFF; }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: 'Bricolage', system-ui, sans-serif; background: #E9E2D9; padding: 40px; display: grid; gap: 28px; width: 1280px; }
+  .panel { border-radius: 28px; padding: 64px 72px; display: flex; align-items: center; gap: 56px; }
+  .ink { background: var(--espresso); color: var(--cream); }
+  .cream { background: var(--cream); color: var(--espresso); }
+  .white { background: var(--white); color: var(--espresso); }
+  .lockup { display: flex; align-items: center; gap: 24px; }
+  .lockup img { width: 150px; }
+  .word { line-height: .86; font-size: 76px; font-weight: 800; letter-spacing: -0.045em; font-variation-settings: "wdth" 85; }
+  .word b { display: block; color: var(--brown); font-weight: 800; }
+  .ink .word b { color: #D6B394; }
+  .tag { margin-top: 14px; font-family: 'Fraunces'; font-style: italic; font-weight: 500; font-size: 30px; letter-spacing: -0.01em; font-variation-settings: "SOFT" 100, "WONK" 1; }
+  .ink .tag { color: #E8D3C0; }
+  .cream .tag, .white .tag { color: #7A5038; }
+  .icons { display: flex; gap: 28px; }
+  .icon { width: 220px; height: 220px; border-radius: 52px; display: grid; place-items: center; }
+  .icon img { width: 150px; }
+  .label { font-size: 15px; letter-spacing: .2em; text-transform: uppercase; color: #6b5e52; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="label">Primary lockup · on white</div>
+  <div class="panel white" id="light">
+    <div class="lockup"><img src="mark.svg" alt="" /><div><div class="word">Kabuor<b>Dine</b></div><div class="tag">Karibu mezani.</div></div></div>
+  </div>
+  <div class="label">Primary lockup · on espresso</div>
+  <div class="panel ink" id="dark">
+    <div class="lockup"><img src="mark.svg" alt="" /><div><div class="word">Kabuor<b>Dine</b></div><div class="tag">Karibu mezani.</div></div></div>
+  </div>
+  <div class="label">Profile / app icon</div>
+  <div class="icons">
+    <div class="icon cream" id="icon-light"><img src="mark.svg" alt="" /></div>
+    <div class="icon ink" id="icon-dark"><img src="mark.svg" alt="" /></div>
+  </div>
+</body>
+</html>

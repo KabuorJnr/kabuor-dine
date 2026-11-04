@@ -49,11 +49,15 @@
   --color-warn-soft: #fff4e0;
   --color-bad: #b42318;
   --color-bad-soft: #fdecea;
-  /* Kabuor Dine: warm terracotta, so the restaurant product is never mistaken for the ERP's blue. */
-  --color-dine: #c2410c;
-  --color-dine-hover: #d4500f;
-  --color-dine-soft: #fff1e8;
-  --color-dine-night: #17110d;
+  /* Kabuor Dine: white with a touch of faded brown (the cloche in the logo); espresso for the kitchen at night. */
+  --color-dine: #9C6B4A;
+  --color-dine-hover: #86593B;
+  --color-dine-soft: #F4ECE3;
+  --color-dine-night: #2E211A;
+  --color-cream: #FBF7F2;
+  --color-espresso: #2E211A;
+  --font-brand: 'Bricolage', 'Onest', ui-sans-serif, system-ui, sans-serif;
+  --font-tagline: 'Fraunces', Georgia, serif;
 
   /* Small, even corners: controls 4–6px, cards and panels 8px. */
   --radius-sm: 4px;

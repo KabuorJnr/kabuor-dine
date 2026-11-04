@@ -9,6 +9,7 @@ import { cn } from '../lib/format';
 import { TrialBanner } from '../components/Plan';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { Sheet } from '../components/ui';
+import { DineMark } from './Logo';
 import Floor from './Floor';
 import Kitchen from './Kitchen';
 import MenuSetup from './MenuSetup';
@@ -58,31 +59,31 @@ function DineShell() {
   const rest = nav.slice(4);
   const backOffice = (can(s, 'reports') || can(s, 'stock.view') || can(s, 'admin')) && { to: dineOnly ? '/invoices' : '/today', label: dineOnly ? 'Back office' : 'Kabuor ERP' };
   return (
-    <div className={cn('min-h-screen', kitchen ? 'bg-dine-night' : 'bg-paper')}>
-      <header className="sticky top-0 z-40 bg-dine-night text-white print:hidden">
+    <div className={cn('min-h-screen', kitchen ? 'bg-dine-night' : 'bg-cream')}>
+      <header className={cn('sticky top-0 z-40 print:hidden', kitchen ? 'bg-dine-night text-white' : 'border-b border-dine/10 bg-white/90 text-ink backdrop-blur')}>
         <div className="mx-auto flex max-w-[1400px] items-center gap-3 px-4 py-2.5">
           <NavLink to="/dine" className="flex min-w-0 shrink-0 items-center gap-2">
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-dine font-bold">D</span>
+            <DineMark className="h-8 shrink-0" dark={kitchen} />
             <span className="min-w-0 leading-tight">
-              <span className="block text-sm font-bold">Kabuor Dine</span>
-              <span className="block max-w-[200px] truncate text-[11px] text-white/60">{s.company.name}</span>
+              <span className="font-brand block text-[15px] font-extrabold tracking-[-0.03em]">Kabuor <span className={kitchen ? 'text-[#D6B394]' : 'text-dine'}>Dine</span></span>
+              <span className={cn('block max-w-[200px] truncate text-[11px]', kitchen ? 'text-white/60' : 'text-muted')}>{s.company.name}</span>
             </span>
           </NavLink>
           <nav className="no-scrollbar hidden min-w-0 flex-1 gap-1 overflow-x-auto md:flex" aria-label="Kabuor Dine">
             {nav.map((n) => (
               <NavLink key={n.to} to={n.to} end={n.to === '/dine'}
-                className={({ isActive }) => cn('flex shrink-0 items-center gap-1.5 rounded-md px-3 py-2 text-sm font-semibold transition', isActive ? 'bg-white/12 text-white' : 'text-white/65 hover:bg-white/8 hover:text-white')}>
+                className={({ isActive }) => cn('flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition', kitchen ? (isActive ? 'bg-white/12 text-white' : 'text-white/65 hover:bg-white/8 hover:text-white') : (isActive ? 'bg-dine-soft text-dine' : 'text-ink-2 hover:bg-cream hover:text-ink'))}>
                 <n.icon className="h-4 w-4" /> {n.label}
               </NavLink>
             ))}
           </nav>
           <span className="flex-1 md:hidden" />
           {backOffice && (
-            <NavLink to={backOffice.to} title={dineOnly ? 'Bills, money in, stock, reports, staff and settings' : 'Back to Kabuor ERP'} className="hidden shrink-0 items-center gap-1.5 rounded-md px-3 py-2 text-sm font-semibold text-white/70 hover:bg-white/8 hover:text-white md:flex">
+            <NavLink to={backOffice.to} title={dineOnly ? 'Bills, money in, stock, reports, staff and settings' : 'Back to Kabuor ERP'} className={cn('hidden shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold md:flex', kitchen ? 'text-white/70 hover:bg-white/8 hover:text-white' : 'text-ink-2 hover:bg-cream hover:text-ink')}>
               <Store className="h-4 w-4" /> {backOffice.label}
             </NavLink>
           )}
-          <button onClick={() => setSession(null)} title={`Sign out ${s.user.name}`} className="hidden h-9 w-9 shrink-0 place-items-center rounded-md text-white/70 hover:bg-white/8 hover:text-white md:grid" aria-label="Sign out">
+          <button onClick={() => setSession(null)} title={`Sign out ${s.user.name}`} className={cn('hidden h-9 w-9 shrink-0 place-items-center rounded-lg md:grid', kitchen ? 'text-white/70 hover:bg-white/8 hover:text-white' : 'text-muted hover:bg-cream hover:text-ink')} aria-label="Sign out">
             <LogOut className="h-4 w-4" />
           </button>
         </div>
