@@ -292,7 +292,7 @@ export function SupplierView() {
           title={supplier.name}
           subtitle={`${supplier.number} · ${supplier.kraPin ? `KRA PIN ${supplier.kraPin}` : 'No KRA PIN'}`}
           actions={
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {can(session, 'buy') && (
                 <button className="btn btn-ghost" onClick={() => setEditing(true)}>
                   <Edit2 className="h-4 w-4" /> Edit

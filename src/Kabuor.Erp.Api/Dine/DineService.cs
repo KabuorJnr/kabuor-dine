@@ -298,7 +298,7 @@ public sealed class DineService(ErpDb db, RequestContext ctx, Numbers numbers, S
             restaurant = new { c.Name, c.Phone, c.County, paybill = c.MpesaShortcode, welcome = s.Welcome },
             table = new { table.Name, table.Area },
             open = s.Open, payMode = s.PayMode.ToString(),
-            mpesaPrompt = c.StkShortcode.Length > 0 && c.StkConsumerKey.Length > 0 && c.StkPasskey.Length > 0,
+            mpesaPrompt = stk.CanPrompt(c),
             menu = await MenuItems(true),
             visit = session is null ? null : await Visit(session),
         };
@@ -424,7 +424,7 @@ public sealed class DineService(ErpDb db, RequestContext ctx, Numbers numbers, S
         var phone = Phones.ToMsisdn(input.Phone) ?? throw new AppException("Enter your M-Pesa number (e.g. 0712 345 678).");
         if (session.Phone.Length == 0) session.Phone = phone;
         var invoice = await BillDue(session);
-        var prompt = c.StkShortcode.Length > 0 && c.StkConsumerKey.Length > 0 && c.StkPasskey.Length > 0;
+        var prompt = stk.CanPrompt(c);
         if (!prompt)
         {
             session.BillRequestedAt ??= DateTimeOffset.UtcNow;
@@ -760,7 +760,7 @@ public sealed class DineService(ErpDb db, RequestContext ctx, Numbers numbers, S
         return new
         {
             payMode = s.PayMode.ToString(), s.ApproveFirstOrder, stations = StationsOf(s), s.Welcome, s.Open,
-            mpesaPrompt = c.StkShortcode.Length > 0 && c.StkConsumerKey.Length > 0 && c.StkPasskey.Length > 0, paybill = c.MpesaShortcode,
+            mpesaPrompt = stk.CanPrompt(c), paybill = c.MpesaShortcode,
             product = c.Product,
         };
     }

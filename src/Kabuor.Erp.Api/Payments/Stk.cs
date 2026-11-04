@@ -74,14 +74,24 @@ public static class Daraja
     }
 }
 
-public sealed class StkService(ErpDb db, PaymentService payments, SecretBox box, IHttpClientFactory http, RequestContext ctx, ILogger<StkService> log)
+public sealed class StkService(ErpDb db, PaymentService payments, SecretBox box, IHttpClientFactory http, RequestContext ctx, IConfiguration config, ILogger<StkService> log)
 {
     async Task<Company> Company() => await db.Companies.SingleAsync(c => c.Id == db.CompanyId);
+
+    /// <summary>The Daraja app this business prompts with: its own, or for the Kabuor Dine demo restaurant (with no keys
+    /// of its own) the platform's from the environment (see DarajaKeys). Null when there's none.</summary>
+    public DarajaKeys? Keys(Company c) =>
+        Ready(c) ? new DarajaKeys(c.StkEnvironment, c.StkConsumerKey, box.Open(c.StkConsumerSecret), c.StkShortcode, box.Open(c.StkPasskey), c.StkTill)
+        : c.Id == Kabuor.Erp.Dine.DineDemo.CompanyId ? DarajaKeys.Platform(config)
+        : null;
+
+    /// <summary>Whether this business can send M-Pesa prompts at all.</summary>
+    public bool CanPrompt(Company c) => Ready(c) || (c.Id == Kabuor.Erp.Dine.DineDemo.CompanyId && DarajaKeys.Platform(config) is not null);
 
     public async Task<object> Setup()
     {
         var c = await Company();
-        return new { ready = Ready(c), environment = c.StkEnvironment, kind = c.StkTill.Length > 0 ? "till" : "paybill", shortcode = c.StkShortcode, till = c.StkTill, hasKeys = c.StkConsumerKey.Length > 0 && c.StkPasskey.Length > 0 };
+        return new { ready = CanPrompt(c), environment = c.StkEnvironment, kind = c.StkTill.Length > 0 ? "till" : "paybill", shortcode = c.StkShortcode, till = c.StkTill, hasKeys = c.StkConsumerKey.Length > 0 && c.StkPasskey.Length > 0 };
     }
 
     static bool Ready(Company c) => c.StkShortcode.Length > 0 && c.StkConsumerKey.Length > 0 && c.StkConsumerSecret.Length > 0 && c.StkPasskey.Length > 0;
@@ -107,7 +117,7 @@ public sealed class StkService(ErpDb db, PaymentService payments, SecretBox box,
     public async Task<MpesaRequest> Request(Guid invoiceId, StkRequestInput input, string baseUrl)
     {
         var c = await Company();
-        if (!Ready(c)) throw new AppException("To send M-Pesa prompts, add your Daraja app keys in Settings → Business & M-Pesa.");
+        var keys = Keys(c) ?? throw new AppException("To send M-Pesa prompts, add your Daraja app keys in Settings → Business & M-Pesa.");
         var doc = await db.SalesDocs.Include(d => d.Customer).SingleOrDefaultAsync(d => d.Id == invoiceId) ?? throw new AppException("Not found.", 404);
         if (doc.Kind != SalesDocKind.Invoice || doc.Status is not (SalesDocStatus.Sent or SalesDocStatus.PartPaid)) throw new AppException("Only an issued, unpaid invoice can be paid by prompt.");
         var balance = doc.Total - doc.Paid;
@@ -120,8 +130,8 @@ public sealed class StkService(ErpDb db, PaymentService payments, SecretBox box,
         var pending = (await db.MpesaRequests.Where(r => r.SalesDocId == doc.Id && r.Status == MpesaRequestStatus.Pending).Select(r => r.CreatedAt).ToListAsync()).Any(t => t > since);
         if (pending) throw new AppException("A prompt was just sent for this invoice. Give the customer a minute to enter their PIN.", 409);
 
-        var checkout = await Daraja.Send(http.CreateClient("daraja"), new Daraja.Push(c.StkEnvironment, c.StkConsumerKey, box.Open(c.StkConsumerSecret), c.StkShortcode, box.Open(c.StkPasskey),
-            c.StkTill.Length > 0, c.StkTill.Length > 0 ? c.StkTill : c.StkShortcode, phone, amount / 100,
+        var checkout = await Daraja.Send(http.CreateClient("daraja"), new Daraja.Push(keys.Environment, keys.ConsumerKey, keys.ConsumerSecret, keys.Shortcode, keys.Passkey,
+            keys.IsTill, keys.PayTo, phone, amount / 100,
             $"{baseUrl.TrimEnd('/')}/api/mpesa/stk/{c.MpesaCallbackKey}", doc.Number, $"Pay {doc.Number}"), log);
         var r = new MpesaRequest { SalesDocId = doc.Id, Phone = phone, Amount = amount, CheckoutId = checkout, RequestedBy = ctx.Actor };
         db.MpesaRequests.Add(r);

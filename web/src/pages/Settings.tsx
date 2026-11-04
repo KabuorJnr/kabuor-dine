@@ -137,6 +137,7 @@ function Company({ part = 'details' }: { part?: 'details' | 'payments' | 'docume
           <Field label="Industry" hint="Decides which sections and setup steps you see.">
             <select className="field" value={f.industry ?? 'general'} onChange={(e) => setF({ ...f, industry: e.target.value })}>
               <option value="general">General Business & Trading</option>
+              <option value="restaurant">Restaurant, Café & Hotel</option>
               <option value="distribution">Wholesale & Distribution</option>
               <option value="manufacturing">Manufacturing & Processing</option>
               <option value="transportation">Transport & Fleet Logistics</option>

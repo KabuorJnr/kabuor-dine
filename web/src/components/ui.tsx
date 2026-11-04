@@ -20,7 +20,7 @@ export function PageHeader({ title, subtitle, actions, print }: { title: string;
       </header>
       {actions ? (
         <div role="toolbar" aria-label={`${title} actions`} className="sticky top-[61px] z-20 -mx-4 mb-5 border-y border-line bg-paper/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6 lg:top-14 lg:-mx-8 lg:px-8 print:hidden">
-          <div className="no-scrollbar flex items-center gap-2 overflow-x-auto lg:flex-wrap lg:overflow-visible [&_.btn]:py-2">{actions}</div>
+          <div className="flex flex-wrap items-center gap-2 [&_.btn]:py-2">{actions}</div>
         </div>
       ) : (
         <div className="mb-5" />
@@ -32,9 +32,9 @@ export function PageHeader({ title, subtitle, actions, print }: { title: string;
 /** Filter chips that show how many each one returns, before it's tapped. */
 export function Chips<T extends string>({ value, onChange, options, label }: { value: T; onChange: (v: T) => void; options: [T, string, number?][]; label: string }) {
   return (
-    // Phones swipe through one row; wider screens wrap, so no option is ever hidden past the edge.
-    <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:overflow-visible sm:px-0" role="group" aria-label={label}>
-      <div className="flex w-max gap-1.5 sm:w-auto sm:flex-wrap">
+    // The chips wrap onto another line when they don't fit, so no option is ever hidden past the edge.
+    <div role="group" aria-label={label}>
+      <div className="flex flex-wrap gap-1.5">
         {options.map(([id, text, n]) => (
           <button
             key={id}
@@ -55,8 +55,8 @@ export function Chips<T extends string>({ value, onChange, options, label }: { v
 /** A page's views, side by side (Work orders | Faults | Schedule). Phones swipe through them in one row. */
 export function Tabs<T extends string>({ value, onChange, options, label }: { value: T; onChange: (v: T) => void; options: [T, string, number?][]; label: string }) {
   return (
-    <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-      <div className="inline-flex rounded-full bg-white p-0.5 ring-1 ring-line" role="tablist" aria-label={label}>
+    <div className="max-w-full">
+      <div className="inline-flex max-w-full flex-wrap gap-0.5 rounded-[20px] bg-white p-0.5 ring-1 ring-line" role="tablist" aria-label={label}>
         {options.map(([id, text, n]) => (
           <button
             key={id}

@@ -417,7 +417,7 @@ export default function Stock() {
           }`
         }
         actions={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {can(session, 'stock') && (
               <button className="btn btn-ghost" onClick={() => setTransferring(true)}>
                 <ArrowLeftRight className="h-4 w-4" /> {t('Transfer stock')}

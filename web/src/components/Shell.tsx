@@ -16,7 +16,7 @@ import ErrorBoundary from './ErrorBoundary';
 import TellMe from './TellMe';
 import { TrialBanner } from './Plan';
 import { Sheet } from './ui';
-import { DineWord } from '../dine/Logo';
+import { DineMark, DineWord } from '../dine/Logo';
 
 export default function Shell({ session }: { session: Session }) {
   const { t, lang } = useLang();
@@ -165,7 +165,9 @@ export default function Shell({ session }: { session: Session }) {
       {/* Phone top bar */}
       <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-line bg-white/95 px-4 py-3 backdrop-blur lg:hidden print:hidden">
         <div className="flex min-w-0 items-center gap-2">
-          <img src="/brand/kabuor-erp-symbol-blue.svg" alt="" className="h-6 w-auto shrink-0" />
+          {session.company.product === 'dine'
+            ? <DineMark className="h-6 shrink-0" />
+            : <img src="/brand/kabuor-erp-symbol-blue.svg" alt="" className="h-6 w-auto shrink-0" />}
           <span className="truncate font-display font-semibold">
             {session.user.isPlatformAdmin ? 'Kabuor Platform' : session.company.name}
           </span>

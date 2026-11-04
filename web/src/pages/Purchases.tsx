@@ -92,7 +92,7 @@ export function PurchaseList() {
             : `${data.page.total} shown`)
         }
         actions={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <div className="inline-flex rounded-lg bg-paper p-0.5 ring-1 ring-line">
               <button
                 type="button"

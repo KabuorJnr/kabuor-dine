@@ -48,7 +48,7 @@ export default function MenuSetup() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="sm:w-72"><SearchBox value={q} onChange={setQ} placeholder="Find a dish or drink" /></div>
         {categories.length > 1 && (
-          <div className="no-scrollbar -mx-4 flex gap-1.5 overflow-x-auto px-4 sm:mx-0 sm:px-0" role="tablist" aria-label="Menu sections">
+          <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Menu sections">
             {['', ...categories].map((c) => (
               <button key={c || 'all'} role="tab" aria-selected={section === c} onClick={() => setSection(c)}
                 className={cn('shrink-0 rounded-full px-3.5 py-1.5 text-sm font-semibold ring-1 transition', section === c ? 'bg-ink text-white ring-ink' : 'bg-white text-ink-2 ring-line hover:bg-paper')}>
@@ -64,20 +64,21 @@ export default function MenuSetup() {
           <h2 className="flex items-center justify-between border-b border-line bg-paper px-4 py-2.5 text-sm font-bold">{c}<span className="text-xs font-medium text-faint">{on.filter((d) => (d.category || 'Menu') === c).length} items</span></h2>
           <ul className="divide-y divide-line">
             {on.filter((d) => (d.category || 'Menu') === c).map((d) => (
-              <li key={d.id} className={cn('flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3', d.hidden && 'opacity-60')}>
+              <li key={d.id} className={cn('flex items-start gap-3 px-4 py-3', d.hidden && 'opacity-60')}>
                 <div className="min-w-0 flex-1">
-                  <p className="flex flex-wrap items-center gap-2 font-semibold">
+                  <p className="flex flex-wrap items-center gap-x-2 gap-y-1 leading-snug font-semibold">
                     {d.name}
                     {d.popular && <Flame className="h-4 w-4 text-dine" aria-label="Popular" />}
                     {d.hidden && <Status tone="plain">Hidden from guests</Status>}
                     {d.soldOut && <Status tone="bad">{d.markedSoldOut ? 'Finished' : 'Out of stock'}</Status>}
                   </p>
-                  <p className="text-sm text-muted">
+                  <p className="mt-1 text-sm leading-snug text-muted">
                     {d.station}{d.options.length > 0 && ` · choices: ${d.options.map((o) => o.name).join(', ')}`}{d.suggest && ` · suggests ${d.suggest.name}`}{d.trackStock && ` · ${d.onHand ?? 0} in stock`}
                   </p>
                 </div>
-                <span className="num w-24 text-right font-semibold">{ksh(d.price)}</span>
-                <div className="flex items-center gap-2">
+                <div className="flex shrink-0 flex-col items-end gap-1.5 sm:flex-row sm:items-center sm:gap-4">
+                <span className="num font-semibold sm:w-24 sm:text-right">{ksh(d.price)}</span>
+                <div className="flex items-center gap-1.5">
                   <label className="flex cursor-pointer items-center gap-2 text-xs font-semibold text-muted select-none">
                     <span className="hidden sm:inline">{d.markedSoldOut ? 'Finished' : 'Available'}</span>
                     <button type="button" role="switch" aria-checked={!d.markedSoldOut} aria-label={`${d.name} available`} disabled={busy !== ''}
@@ -87,6 +88,7 @@ export default function MenuSetup() {
                     </button>
                   </label>
                   {manage && <button className="grid h-9 w-9 place-items-center rounded-md text-muted hover:bg-paper" aria-label={`Edit ${d.name}`} onClick={() => setEditing(d)}><Pencil className="h-4 w-4" /></button>}
+                </div>
                 </div>
               </li>
             ))}

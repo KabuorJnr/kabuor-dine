@@ -276,6 +276,10 @@ using (var scope = app.Services.CreateScope())
     await SchemaSync.Prepare(db, app.Configuration); // migrations on PostgreSQL; EnsureCreated + new tables/columns on SQLite
 }
 
+// The Kabuor Dine demo restaurant, when the host sets Demo:Password (DEMO__PASSWORD). Never blocks the start.
+try { await Kabuor.Erp.Dine.DineDemo.Ensure(app.Services, app.Configuration); }
+catch (Exception e) { app.Logger.LogWarning(e, "The Kabuor Dine demo restaurant couldn't be prepared."); }
+
 
 app.UseForwardedHeaders();
 app.Use(async (ctx, next) =>
