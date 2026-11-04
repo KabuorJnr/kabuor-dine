@@ -11,8 +11,9 @@ import { api, setSession, useApi } from '../lib/api';
 import { day, ksh } from '../lib/format';
 import { Empty, ErrorNote, Field, Loading, Sheet, Status, SheetFooter, PageError, confirmDialog, noticeDialog } from '../components/ui';
 import PortalOperations from '../components/PortalOperations';
-import { printAs } from '../components/PrintDoc';
+import { DocBox, DocFooter, Letterhead, printAs } from '../components/PrintDoc';
 
+const PAY_METHOD: Record<string, string> = { Mpesa: 'M-Pesa', Bank: 'Bank transfer', Cash: 'Cash' };
 const monthName = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 
 import { MyDeductions, parseLines } from '../components/Deductions';
@@ -345,14 +346,18 @@ export default function MyPortal() {
       {tab === 'p9' && (
         <div className="space-y-4">
           <div className="card doc p-5">
-            <div className="flex justify-between items-center mb-4 border-b border-line pb-3">
+            <div className="hidden print:block">
+              <Letterhead title="P9 tax deduction card" number={String(p9Data?.year ?? new Date().getFullYear())} facts={[['Employer', data.company]]} />
+              <PayeeBox emp={emp} />
+            </div>
+            <div className="flex justify-between items-center mb-4 border-b border-line pb-3 print:hidden">
               <div>
                 <h2 className="font-display text-base font-semibold text-ink">KRA P9 Tax Deduction Certificate</h2>
                 <p className="text-xs text-muted">Annual tax deducted and remitted under PAYE</p>
               </div>
               <button
                 type="button"
-                onClick={() => printAs('Kabuor document')}
+                onClick={() => printAs(`P9 ${p9Data?.year ?? new Date().getFullYear()} · ${emp.name}`)}
                 className="btn btn-ghost py-1.5 text-xs font-semibold"
               >
                 <Printer className="h-4 w-4" /> Print P9
@@ -361,7 +366,7 @@ export default function MyPortal() {
 
             {p9Data ? (
               <div className="overflow-x-auto text-xs">
-                <table className="w-full min-w-[54rem] divide-y divide-line text-left">
+                <table className="w-full min-w-[64rem] divide-y divide-line text-left">
                   <thead>
                     <tr className="bg-paper font-semibold text-muted text-2xs">
                       <th className="p-2 whitespace-nowrap">Month</th>
@@ -369,6 +374,8 @@ export default function MyPortal() {
                       <th className="p-2 text-right whitespace-nowrap">Benefits</th>
                       <th className="p-2 text-right whitespace-nowrap">Gross Pay</th>
                       <th className="p-2 text-right whitespace-nowrap">NSSF / Pension</th>
+                      <th className="p-2 text-right whitespace-nowrap">SHIF</th>
+                      <th className="p-2 text-right whitespace-nowrap">Housing Levy</th>
                       <th className="p-2 text-right whitespace-nowrap">Taxable Pay</th>
                       <th className="p-2 text-right whitespace-nowrap">Tax Charged</th>
                       <th className="p-2 text-right whitespace-nowrap">Personal Relief</th>
@@ -378,12 +385,14 @@ export default function MyPortal() {
                   <tbody className="divide-y divide-line/60">
                     {p9Data.months?.map((m: any, i: number) => (
                       <tr key={i} className="hover:bg-paper/40">
-                        <td className="p-2 font-semibold whitespace-nowrap">{m.month}</td>
-                        <td className="p-2 text-right num whitespace-nowrap">{ksh(m.basicSalary)}</td>
+                        <td className="p-2 font-semibold whitespace-nowrap">{monthName(m.month)}</td>
+                        <td className="p-2 text-right num whitespace-nowrap">{ksh(m.basic)}</td>
                         <td className="p-2 text-right num whitespace-nowrap">{ksh(m.benefits)}</td>
                         <td className="p-2 text-right num font-semibold whitespace-nowrap">{ksh(m.gross)}</td>
                         <td className="p-2 text-right num whitespace-nowrap">{ksh(m.nssf)}</td>
-                        <td className="p-2 text-right num font-semibold whitespace-nowrap">{ksh(m.taxablePay)}</td>
+                        <td className="p-2 text-right num whitespace-nowrap">{ksh(m.shif)}</td>
+                        <td className="p-2 text-right num whitespace-nowrap">{ksh(m.housingLevy)}</td>
+                        <td className="p-2 text-right num font-semibold whitespace-nowrap">{ksh(m.taxable)}</td>
                         <td className="p-2 text-right num whitespace-nowrap">{ksh(m.taxCharged)}</td>
                         <td className="p-2 text-right num whitespace-nowrap">{ksh(m.relief)}</td>
                         <td className="p-2 text-right num font-bold text-bad whitespace-nowrap">{ksh(m.paye)}</td>
@@ -394,11 +403,13 @@ export default function MyPortal() {
                     <tfoot className="border-t-2 border-line bg-paper/60 font-bold">
                       <tr>
                         <td className="p-2 whitespace-nowrap">TOTAL</td>
-                        <td className="p-2 text-right num whitespace-nowrap">{ksh(p9Data.totals.basicSalary)}</td>
+                        <td className="p-2 text-right num whitespace-nowrap">{ksh(p9Data.totals.basic)}</td>
                         <td className="p-2 text-right num whitespace-nowrap">{ksh(p9Data.totals.benefits)}</td>
                         <td className="p-2 text-right num whitespace-nowrap">{ksh(p9Data.totals.gross)}</td>
                         <td className="p-2 text-right num whitespace-nowrap">{ksh(p9Data.totals.nssf)}</td>
-                        <td className="p-2 text-right num whitespace-nowrap">{ksh(p9Data.totals.taxablePay)}</td>
+                        <td className="p-2 text-right num whitespace-nowrap">{ksh(p9Data.totals.shif)}</td>
+                        <td className="p-2 text-right num whitespace-nowrap">{ksh(p9Data.totals.housingLevy)}</td>
+                        <td className="p-2 text-right num whitespace-nowrap">{ksh(p9Data.totals.taxable)}</td>
                         <td className="p-2 text-right num whitespace-nowrap">{ksh(p9Data.totals.taxCharged)}</td>
                         <td className="p-2 text-right num whitespace-nowrap">{ksh(p9Data.totals.relief)}</td>
                         <td className="p-2 text-right num text-bad whitespace-nowrap">{ksh(p9Data.totals.paye)}</td>
@@ -410,6 +421,7 @@ export default function MyPortal() {
             ) : (
               <p className="text-xs text-muted py-4 text-center">Loading P9 records for this tax year...</p>
             )}
+            <DocFooter className="hidden print:flex">PAYE deducted and remitted to KRA by {data.company}, as recorded in its payroll.</DocFooter>
           </div>
         </div>
       )}
@@ -515,7 +527,11 @@ export default function MyPortal() {
       <Sheet open={Boolean(selectedPayslipId)} onClose={() => setSelectedPayslipId(null)} title="Payslip Detail" wide>
         {payslipDetail ? (
           <div className="doc space-y-5 text-xs">
-            <div className="rounded-lg border border-line bg-paper p-4 text-center">
+            <div className="hidden print:block">
+              <Letterhead title="Payslip" number={monthName(payslipDetail.period)} facts={[['Employer', data.company], ['Paid by', PAY_METHOD[emp.payMethod] ?? String(emp.payMethod ?? '')]]} />
+              <PayeeBox emp={emp} />
+            </div>
+            <div className="rounded-lg border border-line bg-paper p-4 text-center print:hidden">
               <b className="text-base font-bold text-ink block">{emp.name}</b>
               <span className="text-muted">{emp.jobTitle} · {monthName(payslipDetail.period)}</span>
             </div>
@@ -590,7 +606,7 @@ export default function MyPortal() {
               <div className="rounded-lg border border-good/20 bg-good/5 p-4 flex justify-between items-center gap-3">
                 <div className="min-w-0 flex-1">
                   <span className="text-xs font-bold uppercase text-good tracking-wider block">Net Pay to Account</span>
-                  <span className="text-xs text-muted">Paid via {emp.payMethod}</span>
+                  <span className="text-xs text-muted">Paid via {PAY_METHOD[emp.payMethod] ?? emp.payMethod}</span>
                 </div>
                 <span className="num shrink-0 font-display text-2xl font-semibold text-good whitespace-nowrap">
                   {ksh(payslipDetail.slip?.net ?? 0)}
@@ -598,12 +614,14 @@ export default function MyPortal() {
               </div>
             </div>
 
+            <DocFooter className="hidden print:flex">Payslip from {data.company}, as recorded in its payroll. Keep it for your records.</DocFooter>
+
             <button
               type="button"
-              onClick={() => printAs('Kabuor document')}
+              onClick={() => printAs(`Payslip ${monthName(payslipDetail.period)} · ${emp.name}`)}
               className="btn btn-ghost w-full py-2.5 text-xs font-semibold"
             >
-              <Printer className="h-4 w-4" /> Print Payslip Slip
+              <Printer className="h-4 w-4" /> Print payslip
             </button>
           </div>
         ) : (
@@ -611,5 +629,17 @@ export default function MyPortal() {
         )}
       </Sheet>
     </div>
+  );
+}
+
+/** Who a payslip or P9 is for, as it prints: the employee and the numbers KRA, NSSF and SHA know them by. */
+function PayeeBox({ emp }: { emp: any }) {
+  const ids = [emp.number && `Staff no. ${emp.number}`, emp.kraPin && `KRA PIN ${emp.kraPin}`, emp.nssfNumber && `NSSF ${emp.nssfNumber}`, emp.shaNumber && `SHA ${emp.shaNumber}`].filter(Boolean);
+  return (
+    <DocBox label="Employee" className="mt-5 mb-4">
+      <p className="font-semibold text-ink">{emp.name}</p>
+      <p className="mt-0.5 text-xs text-ink-2">{[emp.jobTitle, emp.department].filter(Boolean).join(' · ')}</p>
+      {ids.length > 0 && <p className="mt-0.5 text-xs text-ink-2">{ids.join('  ·  ')}</p>}
+    </DocBox>
   );
 }

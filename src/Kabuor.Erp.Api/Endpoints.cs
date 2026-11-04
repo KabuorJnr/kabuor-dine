@@ -141,9 +141,11 @@ public static class Endpoints
             var payments = await db.Payments.Where(p => p.CustomerId == id).OrderByDescending(p => p.ReceivedAt)
                 .Select(p => new { p.Id, p.Method, p.Amount, p.Allocated, p.Reference, p.ReceivedAt }).Take(200).ToListAsync();
             var open = docs.Where(d => d.Kind == SalesDocKind.Invoice && d.Status is SalesDocStatus.Sent or SalesDocStatus.PartPaid).ToList();
+            var paybill = await db.Companies.Where(x => x.Id == db.CompanyId).Select(x => x.MpesaShortcode).SingleAsync();
             return new
             {
                 customer = c, documents = docs, payments,
+                payTo = new { paybill }, // for the printed statement's "How to pay"
                 owes = open.Sum(d => d.Total - d.Paid),
                 overdue = open.Where(d => d.DueDate < Clock.Today).Sum(d => d.Total - d.Paid),
                 credit = payments.Sum(p => p.Amount - p.Allocated),

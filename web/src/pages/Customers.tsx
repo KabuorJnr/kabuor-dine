@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
-import { ArrowLeft, Loader2, MessageCircle, Phone, Plus } from 'lucide-react';
+import { ArrowLeft, FileText, Loader2, MessageCircle, Phone, Plus } from 'lucide-react';
 import { api, can, useApi, useSession } from '../lib/api';
 import { CURRENCIES, dateTime, day, ksh, msisdn, prettyPhone } from '../lib/format';
 import { useLang } from '../lib/i18n';
@@ -8,6 +8,8 @@ import { DocStatus } from './Invoices';
 import { CustomerTerms } from '../components/Trade';
 import { CustomerJourney, CustomerProfile } from '../components/CustomerIntel';
 import DataRights from '../components/DataRights';
+import CustomerStatement from '../components/CustomerStatement';
+import { PrintSheet } from '../components/PrintDoc';
 import { ActivityList, LogActivity } from './Pipeline';
 import { Chips, Empty, ErrorNote, Field, Loading, PageHeader, SearchBox, Sheet, Stat, SheetFooter, PageError } from '../components/ui';
 
@@ -166,29 +168,38 @@ export function CustomerView() {
   const { id } = useParams();
   const session = useSession();
   const { data, error, reload } = useApi<any>(`/customers/${id}`);
+  const [statement, setStatement] = useState(false);
   if (error) return <PageError>{error}</PageError>;
   if (!data) return <Loading />;
   const c = data.customer;
   const wa = msisdn(c.phone);
-  const statement = `Hello ${c.name}, your balance with us is ${ksh(data.owes)}${data.overdue ? `, of which ${ksh(data.overdue)} is overdue` : ''}. Thank you for your business.`;
+  const balanceText = `Hello ${c.name}, your balance with us is ${ksh(data.owes)}${data.overdue ? `, of which ${ksh(data.overdue)} is overdue` : ''}. Thank you for your business.`;
 
   return (
     <>
       <Link to="/customers" className="mb-3 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink">
         <ArrowLeft className="h-4 w-4" /> Customers
       </Link>
-      <PageHeader print
+      {statement && (
+        <PrintSheet name={`Statement ${c.number} · ${c.name}`} onDone={() => setStatement(false)}>
+          <CustomerStatement data={data} />
+        </PrintSheet>
+      )}
+      <PageHeader
         title={c.name}
         subtitle={[c.number, c.phone && prettyPhone(c.phone), c.kraPin && `PIN ${c.kraPin}`].filter(Boolean).join(' · ')}
         actions={
           <>
+            <button type="button" className="btn btn-ghost" onClick={() => setStatement(true)}>
+              <FileText className="h-4 w-4" /> Statement
+            </button>
             {c.phone && (
               <a className="btn btn-ghost" href={`tel:+${wa ?? c.phone}`}>
                 <Phone className="h-4 w-4" /> Call
               </a>
             )}
             {wa && data.owes > 0 && (
-              <a className="btn btn-mpesa" href={`https://wa.me/${wa}?text=${encodeURIComponent(statement)}`} target="_blank" rel="noreferrer">
+              <a className="btn btn-mpesa" href={`https://wa.me/${wa}?text=${encodeURIComponent(balanceText)}`} target="_blank" rel="noreferrer">
                 <MessageCircle className="h-4 w-4" /> Send balance
               </a>
             )}

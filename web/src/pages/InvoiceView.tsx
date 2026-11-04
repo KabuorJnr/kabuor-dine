@@ -261,6 +261,9 @@ export default function InvoiceView() {
   const docPaid = cur ? d.fxPaid : d.paid;
   const docBalance = docTotal - docPaid;
   const issued = d.status !== 'Draft' && d.status !== 'Void';
+  // On paper: how to pay while something is owed, and KRA's eTIMS numbers once there are some to show.
+  const showPay = invoice && issued && balance > 0;
+  const showEtims = d.etimsStatus === 'Signed' && Boolean(d.etimsInvoiceNo || d.etimsControlCode);
   // VAT shown per rate (16%, 8%) the way KRA reads an invoice; rates that charge nothing aren't listed.
   const vatByRate = [...(d.lines as any[]).reduce((acc: Map<string, number>, l: any) => { const t = cur ? l.fxTax : l.tax; return t ? acc.set(TAX_LABEL[l.taxType], (acc.get(TAX_LABEL[l.taxType]) ?? 0) + t) : acc; }, new Map<string, number>())];
   if (!vatByRate.length && (cur ? d.fxTax : d.tax)) vatByRate.push(['', cur ? d.fxTax : d.tax]);
@@ -468,9 +471,9 @@ export default function InvoiceView() {
             </dl>
           </div>
 
-          {(invoice && issued) || d.etimsStatus === 'Signed' ? (
+          {showPay || showEtims ? (
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              {invoice && issued && balance > 0 && (
+              {showPay && (
                 <DocBox label="How to pay">
                   {data.payTo.paybill ? (
                     <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-0.5">
@@ -484,7 +487,7 @@ export default function InvoiceView() {
                   )}
                 </DocBox>
               )}
-              {d.etimsStatus === 'Signed' && (
+              {showEtims && (
                 <section className="flex break-inside-avoid items-start justify-between gap-4 rounded-md bg-paper p-4 text-sm ring-1 ring-line">
                   <div className="min-w-0">
                     <p className="mb-1.5 text-2xs font-semibold tracking-wide text-muted uppercase">KRA eTIMS</p>

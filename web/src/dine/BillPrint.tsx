@@ -1,5 +1,5 @@
 // A table's bill on paper (/dine/bill/:id): the receipt a waiter brings to the table or hands over after paying.
-// Restaurants print on thermal receipt printers, so it's laid out for 80 mm (or 58 mm, or A4) paper: the restaurant,
+// Restaurants print on thermal receipt printers, so it’s laid out for 80 mm (or 58 mm, or A4) paper (the printer sets the length): the restaurant,
 // the table, every dish with its choices, the total with VAT included, what's paid and what's left, how to pay by
 // M-Pesa, and KRA eTIMS's signature with its QR code once the bill is signed.
 import { useEffect, useState } from 'react';
@@ -33,7 +33,7 @@ export default function BillPrint() {
     const style = document.createElement('style');
     style.textContent = paper === 'a4'
       ? '@page { size: A4; margin: 16mm } @media print { .receipt-paper { width: 92mm; margin: 0 auto; font-size: 12px; color: #000 } }'
-      : `@page { size: ${paper}mm auto; margin: 0 } @media print { .receipt-paper { width: ${paper === '58' ? 48 : 72}mm; margin: 0 auto; padding: 3mm 0 8mm; font-size: ${paper === '58' ? 10 : 11.5}px; color: #000 } }`;
+      : `@page { margin: 0 } @media print { .receipt-paper { width: ${paper === '58' ? 48 : 72}mm; margin: 0 auto; padding: 3mm 0 8mm; font-size: ${paper === '58' ? 10 : 11.5}px; color: #000 } }`;
     document.head.appendChild(style);
     return () => style.remove();
   }, [paper]);

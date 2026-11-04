@@ -147,6 +147,12 @@ public class PayrollFlowTests(ErpFactory factory) : IClassFixture<ErpFactory>
 
         var p9 = await Ok(await c.GetAsync($"/api/employees/{wanjiru.GetProperty("id")}/p9?year=2026"));
         Assert.Equal(5_845_85, p9.GetProperty("totals").GetProperty("paye").GetInt64());
+        // The P9's totals row covers every column on the card, and taxable pay is gross less NSSF, SHIF and the levy.
+        var t = p9.GetProperty("totals");
+        Assert.Equal(45_000_00, t.GetProperty("basic").GetInt64());
+        Assert.Equal(5_000_00, t.GetProperty("benefits").GetInt64());
+        Assert.Equal(t.GetProperty("gross").GetInt64() - t.GetProperty("nssf").GetInt64() - t.GetProperty("shif").GetInt64() - t.GetProperty("housingLevy").GetInt64(), t.GetProperty("taxable").GetInt64());
+        Assert.Equal(t.GetProperty("taxCharged").GetInt64() - t.GetProperty("relief").GetInt64(), t.GetProperty("paye").GetInt64());
         var csv = await (await c.GetAsync($"/api/payroll/runs/{run.GetProperty("id")}/p10.csv")).Content.ReadAsStringAsync();
         Assert.Contains("A012345678Z,Wanjiru Kamau,45000.00,5000.00,50000.00", csv);
     }

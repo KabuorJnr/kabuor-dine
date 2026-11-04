@@ -52,7 +52,7 @@ function KabuorBand() {
     <div className="flex items-center justify-between gap-4">
       <img src="/brand/kabuor-technologies-logo-blue.svg" alt="Kabuor Technologies" className="h-9 w-auto" />
       <p className="text-right text-2xs leading-snug text-muted">
-        <b className="font-semibold text-ink-2">Kabuor ERP</b>
+        <b className="font-semibold text-ink-2">Kabuor Dine</b>
         <span className="block">Nairobi, Kenya</span>
       </p>
     </div>
@@ -130,8 +130,8 @@ export function DocBox({ label, children, className }: { label: string; children
 export function DocFooter({ children, className }: { children?: ReactNode; className?: string }) {
   return (
     <footer className={cn('mt-10 flex break-inside-avoid flex-wrap items-end justify-between gap-3 border-t border-line pt-3 text-2xs text-muted', className)}>
-      <div className="max-w-md">{children}</div>
-      <p>Kabuor Technologies · Kabuor ERP</p>
+      <div className="max-w-[75%] min-w-0">{children}</div>
+      <p className="whitespace-nowrap">Kabuor Technologies · Kabuor Dine</p>
     </footer>
   );
 }
@@ -218,8 +218,10 @@ function pageToDocument(name: string): { el: HTMLElement; cleanup: () => void } 
   const body = main.cloneNode(true) as HTMLElement;
   const view = [...main.querySelectorAll('[role="tablist"] [aria-selected="true"], [role="group"] [aria-pressed="true"]')].map((n) => n.textContent?.trim()).filter(Boolean).join(' · ');
 
-  // The page's own heading is replaced by the letterhead; its toolbars, tabs and controls aren't for paper.
+  // The page's own heading is replaced by the letterhead; its toolbars, tabs and controls aren't for paper, and
+  // neither are its "← Back" links.
   body.querySelector('h1')?.closest('header')?.remove();
+  body.querySelectorAll('a:has(> .lucide-arrow-left), a:has(> .lucide-chevron-left)').forEach((n) => n.remove());
   // A panel's fold button is its heading: keep the words, drop the button.
   body.querySelectorAll('button[aria-expanded]').forEach((btn) => {
     const h = document.createElement('h2');
@@ -265,8 +267,8 @@ function pageToDocument(name: string): { el: HTMLElement; cleanup: () => void } 
   }
   const foot = document.createElement('footer');
   foot.className = 'page-doc-foot';
-  foot.innerHTML = '<span></span><span>Kabuor Technologies · Kabuor ERP</span>';
-  foot.firstElementChild!.textContent = `${title}, as recorded in Kabuor ERP on ${printed}.`;
+  foot.innerHTML = '<span></span><span>Kabuor Technologies · Kabuor Dine</span>';
+  foot.firstElementChild!.textContent = `${title}, as recorded in Kabuor Dine on ${printed}.`;
   doc.appendChild(foot);
   sheet.appendChild(doc);
   document.body.appendChild(sheet);

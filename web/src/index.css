@@ -226,10 +226,6 @@ input[type='checkbox'], input[type='radio'] {
   }
 }
 /* Documents on paper: A4, real margins, one typeface, readable tables. */
-@page {
-  size: A4;
-  margin: 14mm 14mm 16mm;
-}
 @media print {
   html:has(.doc) {
     font-size: 12px;

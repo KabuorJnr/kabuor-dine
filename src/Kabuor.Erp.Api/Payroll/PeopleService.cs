@@ -276,7 +276,11 @@ public sealed class PeopleService(ErpDb db, Ledger ledger, Numbers numbers, Requ
             employee = new { e.Name, e.Number, e.KraPin },
             year,
             months,
-            totals = new { gross = months.Sum(m => m.gross), nssf = months.Sum(m => m.nssf), shif = months.Sum(m => m.shif), housingLevy = months.Sum(m => m.housingLevy), taxable = months.Sum(m => m.taxable), paye = months.Sum(m => m.paye) },
+            totals = new
+            {
+                basic = months.Sum(m => m.basic), benefits = months.Sum(m => m.benefits), gross = months.Sum(m => m.gross), nssf = months.Sum(m => m.nssf), shif = months.Sum(m => m.shif),
+                housingLevy = months.Sum(m => m.housingLevy), taxable = months.Sum(m => m.taxable), taxCharged = months.Sum(m => m.taxCharged), relief = months.Sum(m => m.relief), paye = months.Sum(m => m.paye),
+            },
         };
     }
 
