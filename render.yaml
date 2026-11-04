@@ -1,0 +1,22 @@
+# Render blueprint for Kabuor Dine: one Docker web service (API + web app); the database is PostgreSQL (DATABASE_URL).
+# Render sets PORT and RENDER_GIT_COMMIT; it only switches traffic once /api/health/ready answers.
+services:
+  - type: web
+    name: kabuor-dine
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter          # always on: free instances sleep, which stops M-Pesa callbacks and eTIMS retries
+    region: frankfurt      # keep the app and the database in the same region
+    healthCheckPath: /api/health/ready
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL  # PostgreSQL connection string (Neon: the direct, non-pooled URL)
+        sync: false
+      - key: JWT__KEY      # 32+ random characters; never change it once set (it also seals stored secrets)
+        sync: false
+      - key: PLATFORM__ADMINS
+        sync: false
+      - key: APP__PUBLICURL # this server's public https address, for M-Pesa callbacks and table QR codes
+        sync: false
+      - key: SENTRY__DSN
+        sync: false

@@ -1,0 +1,440 @@
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'Onest';
+  src: url('/fonts/onest.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Bricolage';
+  src: url('/fonts/bricolage.woff2') format('woff2');
+  font-weight: 200 800;
+  font-display: swap;
+}
+
+/* Kabuor Royal: the Kabuor Builds palette, tuned for long working days (calm surfaces, one strong accent). */
+@theme {
+  --font-sans: 'Onest', ui-sans-serif, system-ui, sans-serif;
+  /* Headings use the same face as the text, a step heavier: calm and businesslike, the way Dynamics and Fluent do it. */
+  --font-display: 'Onest', ui-sans-serif, system-ui, sans-serif;
+
+  /* Type scale, read on phones in daylight and on a till all day: body 14px, details 13px, nothing under 12px.
+     Every text-xs/text-sm in the app follows these, so sizes stay consistent screen to screen. */
+  --text-2xs: 0.75rem;
+  --text-2xs--line-height: 1rem;
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.125rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+
+  --color-ink: #0a0b1e;
+  --color-ink-2: #3b3f5c;
+  --color-muted: #585c80;
+  --color-faint: #8a8db0;
+  --color-line: #e6e7f0;
+  --color-paper: #f7f7fb;
+  --color-card: #ffffff;
+  --color-brand: #2357f5;
+  --color-brand-hover: #3a6bff;
+  --color-brand-soft: #e8eeff;
+  --color-indigo: #3a2bc9;
+  --color-gold: #f2c14e;
+  --color-mpesa: #1e8e3e;
+  --color-good: #0f7a3d;
+  --color-good-soft: #e6f6ec;
+  --color-warn: #a15c00;
+  --color-warn-soft: #fff4e0;
+  --color-bad: #b42318;
+  --color-bad-soft: #fdecea;
+  /* Kabuor Dine: warm terracotta, so the restaurant product is never mistaken for the ERP's blue. */
+  --color-dine: #c2410c;
+  --color-dine-hover: #d4500f;
+  --color-dine-soft: #fff1e8;
+  --color-dine-night: #17110d;
+
+  /* Small, even corners: controls 4–6px, cards and panels 8px. */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius-3xl: 14px;
+
+  --animate-sheet-in: sheet-in 0.22s cubic-bezier(0.1, 0.9, 0.2, 1);
+  --animate-fade-in: fade-in 0.2s ease-out;
+  @keyframes sheet-in {
+    from {
+      transform: translateX(32px);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+  }
+  /* Column headings read the same on every table: quieter than the rows, but never lighter than semibold. */
+  th {
+    font-weight: 600;
+  }
+}
+
+@utility card {
+  @apply rounded-lg bg-card ring-1 ring-line;
+}
+@utility field {
+  /* 16px on phones: iOS zooms the page into any smaller input when it's tapped. */
+  @apply w-full rounded-md bg-white px-3 py-2.5 text-base ring-1 ring-line transition placeholder:text-faint focus:ring-2 focus:ring-brand focus:outline-none sm:text-sm;
+}
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold whitespace-nowrap transition disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply bg-brand text-white hover:bg-brand-hover;
+}
+@utility btn-ghost {
+  @apply bg-white text-ink ring-1 ring-line hover:bg-paper;
+}
+@utility btn-danger {
+  @apply bg-white text-bad ring-1 ring-bad/30 hover:bg-bad-soft;
+}
+@utility btn-mpesa {
+  @apply bg-mpesa text-white hover:brightness-110;
+}
+@utility num {
+  font-variant-numeric: tabular-nums;
+}
+/* Scrollbars: thin, no arrow buttons, quiet until used, the same in the sidebar, panels and pages. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #c9cbdc transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: #d4d6e4;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #a9acc6;
+  background-clip: padding-box;
+}
+/* The sidebar's menu: the scrollbar shows only while the pointer is over it, and the edges fade instead of cutting an item in half. */
+.sidebar-scroll {
+  scrollbar-color: transparent transparent;
+  mask-image: linear-gradient(to bottom, transparent 0, #000 12px, #000 calc(100% - 16px), transparent 100%);
+}
+.sidebar-scroll:hover {
+  scrollbar-color: #d4d6e4 transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+.sidebar-scroll:hover::-webkit-scrollbar-thumb {
+  background: #d4d6e4;
+  background-clip: padding-box;
+}
+/* Read-only fields (a price that comes from the price list) look read-only. */
+.field[readonly] {
+  background: var(--color-paper);
+  color: var(--color-ink-2);
+  cursor: default;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Printed documents (components/PrintDoc.tsx). A4 with page numbers, the brand colours kept on paper, a slightly
+   smaller type scale so an invoice fits one page, and the app hidden while a separate sheet (waybills) prints. */
+@utility doc-table {
+  @apply w-full border-collapse text-sm;
+  & th {
+    @apply bg-brand-soft px-2.5 py-2 text-2xs tracking-wide text-ink uppercase;
+    text-align: left;
+  }
+  & th.text-right {
+    text-align: right;
+  }
+  & td {
+    @apply border-b border-line px-2.5 py-2.5 align-top;
+  }
+  & tr {
+    break-inside: avoid;
+  }
+}
+.print-sheet {
+  display: none;
+}
+@page {
+  size: A4;
+  margin: 14mm 14mm 16mm;
+  @bottom-right {
+    content: 'Page ' counter(page) ' of ' counter(pages);
+    font: 8pt 'Onest', sans-serif;
+    color: #8a8db0;
+  }
+}
+/* Documents on paper: A4, real margins, one typeface, readable tables. */
+@page {
+  size: A4;
+  margin: 14mm 14mm 16mm;
+}
+@media print {
+  html:has(.doc) {
+    font-size: 12px;
+  }
+  html, body, .doc, .doc * {
+    font-family: var(--font-sans) !important;
+  }
+  .print-document > .doc {
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    max-width: none;
+  }
+  .doc table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .doc th {
+    border-bottom: 1.5px solid #0a0b1e;
+  }
+  .doc tbody tr {
+    border-bottom: 1px solid #e6e7f0;
+    break-inside: avoid;
+  }
+  .doc h1, .doc h2, .doc h3 {
+    break-after: avoid;
+  }
+  body {
+    background: #fff;
+  }
+  .doc,
+  .doc * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  body:has(> .print-sheet) > #root {
+    display: none;
+  }
+  .print-sheet {
+    display: block;
+  }
+  thead {
+    display: table-header-group;
+  }
+
+  /* A page printed as a document (PrintDoc.tsx pageToDocument): its cards become plain ruled boxes, its grids
+     stay as laid out, tables run the full width with repeating headers, and nothing scrolls or sticks. */
+  .page-doc {
+    font-size: 11px;
+    color: #0a0b1e;
+  }
+  .page-doc-subtitle {
+    margin: 0 0 14px;
+    font-size: 11px;
+    color: #5b5f7a;
+  }
+  .page-doc-body {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+  }
+  .page-doc-body > * + * {
+    margin-top: 12px;
+  }
+  .page-doc-body .card {
+    box-shadow: none !important;
+    border: 1px solid #e6e7f0 !important;
+    border-radius: 6px !important;
+    padding: 10px 12px !important;
+    break-inside: avoid;
+    background: #fff !important;
+  }
+  .page-doc-body .card .card {
+    border-color: #f0f1f6 !important;
+  }
+  .page-doc-body table {
+    font-size: 10.5px;
+  }
+  .page-doc-body th {
+    background: #eef2ff !important;
+    text-transform: uppercase;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    padding: 6px 8px !important;
+    text-align: left;
+  }
+  .page-doc-body td {
+    padding: 5px 8px !important;
+  }
+  .page-doc-body .overflow-x-auto,
+  .page-doc-body .overflow-y-auto,
+  .page-doc-body .overflow-hidden {
+    overflow: visible !important;
+  }
+  .page-doc-body .sticky,
+  .page-doc-body .fixed {
+    position: static !important;
+  }
+  .page-doc-body a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+  .page-doc-body h2 {
+    font-size: 13px;
+    break-after: avoid;
+  }
+  .page-doc-body .print-value {
+    font-weight: 600;
+  }
+  .page-doc-foot {
+    margin-top: 24px;
+    padding-top: 8px;
+    border-top: 1px solid #e6e7f0;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 9px;
+    color: #8a8db0;
+    break-inside: avoid;
+  }
+
+  /* Kabuor Dine table cards: two across, cut along the dashed line, one on each table. */
+  .print-sheet .dine-qr-sheet {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8mm !important;
+  }
+  .print-sheet .dine-qr-card {
+    border: 1px dashed #b9bccd !important;
+    border-radius: 4mm !important;
+    box-shadow: none !important;
+    padding: 8mm 6mm !important;
+    break-inside: avoid;
+  }
+}
+
+/* The dispatch office's live map (pages/DispatchMap.tsx): muted streets so vehicles stand out, Uber-style. */
+.dispatch-map .leaflet-tile-pane {
+  filter: grayscale(0.55) saturate(0.8) contrast(1.05);
+}
+.dispatch-map .leaflet-container,
+.dispatch-map.leaflet-container {
+  font-family: var(--font-sans);
+  background: var(--color-paper);
+}
+.veh {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 6px;
+  transform: translate(-14px, -14px);
+  cursor: pointer;
+}
+.veh-dot {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  color: #fff;
+  background: var(--color-ink);
+  box-shadow: 0 0 0 3px #fff, 0 2px 8px rgb(10 11 30 / 0.35);
+}
+.veh-dot svg {
+  width: 16px;
+  height: 16px;
+}
+.veh-dot i {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: #fff;
+}
+.veh-moving .veh-dot {
+  background: var(--color-good);
+}
+.veh-stopped .veh-dot {
+  background: var(--color-warn);
+}
+.veh-quiet .veh-dot {
+  background: var(--color-bad);
+}
+.veh-on .veh-dot {
+  box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--color-brand), 0 2px 10px rgb(10 11 30 / 0.4);
+}
+.veh-label {
+  white-space: nowrap;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-ink);
+  background: #fff;
+  box-shadow: 0 1px 4px rgb(10 11 30 / 0.25);
+}
+.drop-pin {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  transform: translate(-11px, -11px);
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 0 0 2px #fff, 0 1px 4px rgb(10 11 30 / 0.3);
+}
+.drop-good {
+  background: var(--color-good);
+}
+.drop-warn {
+  background: var(--color-warn);
+}
+.drop-bad {
+  background: var(--color-bad);
+}

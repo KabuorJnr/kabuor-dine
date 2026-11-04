@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+**/node_modules/
+*.db
+*.db-shm
+*.db-wal
+web/dist/
+src/Kabuor.Erp.Api/wwwroot/
+src/Kabuor.Erp.Api/crash.log
+.env
+tests/

@@ -1,0 +1,5 @@
+# One line ending in the repository (LF), whatever the editor or OS; Windows checkouts convert as usual.
+* text=auto eol=lf
+*.png binary
+*.woff2 binary
+*.ico binary
