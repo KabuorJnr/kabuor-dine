@@ -1,5 +1,7 @@
-// The Kabuor Dine logo: the cloche mark (a serving dome with a K, steam rising) and the stacked wordmark, in the
+// The Kabuor Dine logo: the cloche mark (a walnut serving dome with a K on an oak board, steam rising) and the stacked
+// wordmark, whose A is a wooden table with the covered dish on it, in the
 // same family as Kabuor Builds and Kabuor ERP (brand/logo.html holds the master artwork).
+import { useId } from 'react';
 import { cn } from '../lib/format';
 
 /** The full lockup as drawn in brand/logo.html: the cloche, "Kabuor / Dine" stacked, and "Karibu mezani." */
@@ -11,23 +13,43 @@ export function DineMark({ className, dark = false }: { className?: string; dark
   return <img src={dark ? '/brand/kabuor-dine-mark-on-dark.svg' : '/brand/kabuor-dine-mark.svg'} alt="" aria-hidden className={cn('w-auto', className)} />;
 }
 
-/** The a of "Kabuor": a covered plate, the dome as tall as the lowercase letters and its knob as tall as the K. */
-export function ClocheA({ className }: { className?: string }) {
+/** The A of "Kabuor": a wooden table with the covered dish on it. The dish is the A's point, the table top its crossbar
+ * and the table's legs its legs. Each copy has its own gradient ids, so several logos on a page don't clash. */
+export function TableA({ className }: { className?: string }) {
+  const id = useId().replace(/[^a-zA-Z0-9_-]/g, '');
+  const u = (n: string) => `url(#${id}${n})`;
   return (
-    <svg viewBox="0 0 66 70" aria-hidden className={cn('inline-block h-[0.7em] w-[0.66em] fill-current align-[-0.02em]', className)} style={{ margin: '0 0.025em 0 0.075em' }}>
-      <rect x="0" y="57" width="66" height="11" rx="5.5" />
-      <path d="M2 54 A31 34 0 0 1 64 54 Z" />
-      <rect x="28.5" y="12" width="9" height="10" rx="2" />
-      <circle cx="33" cy="9.5" r="7" />
+    <svg viewBox="0 0 80 70" aria-hidden className={cn('inline-block h-[0.7em] w-[0.8em] align-[-0.02em]', className)} style={{ margin: '0 0.03em 0 0.05em' }}>
+      <defs>
+        <linearGradient id={`${id}oak`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#E8BE84" /><stop offset=".55" stopColor="#C98D50" /><stop offset="1" stopColor="#A46A36" /></linearGradient>
+        <linearGradient id={`${id}leg`} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#A86C38" /><stop offset="1" stopColor="#70431E" /></linearGradient>
+        <linearGradient id={`${id}wal`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#A9734C" /><stop offset=".55" stopColor="#7C4C2F" /><stop offset="1" stopColor="#55321D" /></linearGradient>
+        <clipPath id={`${id}dome`}><path d="M16 33 A24 25 0 0 1 64 33 Z" /></clipPath>
+      </defs>
+      <path d="M22 46 L37 46 L18 68 L2 68 Z" fill={u('leg')} />
+      <path d="M43 46 L58 46 L78 68 L62 68 Z" fill={u('leg')} />
+      <rect x="0" y="36" width="80" height="11" rx="3" fill={u('oak')} />
+      <rect x="0" y="36" width="80" height="2.6" rx="1.3" fill="#F6D9A8" opacity=".8" />
+      <path d="M5 42.5 Q28 40.6 50 42.8 T76 41.6" fill="none" stroke="#7A4A22" strokeOpacity=".4" strokeWidth=".9" />
+      <rect x="10" y="32" width="60" height="4.5" rx="2.25" fill="#F7EFE6" />
+      <path d="M16 33 A24 25 0 0 1 64 33 Z" fill={u('wal')} />
+      <g clipPath={u('dome')} fill="none" stroke="#2E170A" strokeOpacity=".22" strokeWidth=".9">
+        <path d="M12 32 Q40 15 68 32" />
+        <path d="M12 25 Q40 8 68 25" />
+        <path d="M12 18 Q40 1 68 18" />
+      </g>
+      <path d="M22 29 A19 20 0 0 1 32 15" fill="none" stroke="#FFFFFF" strokeOpacity=".25" strokeWidth="2.4" strokeLinecap="round" />
+      <rect x="38" y="7" width="4" height="3" fill="#55321D" />
+      <circle cx="40" cy="5" r="4.8" fill={u('wal')} />
     </svg>
   );
 }
 
-/** "Kabuor Dine" in words, with the covered-plate a. `dine` colours the second word. */
+/** "Kabuor Dine" in words, with the table-and-dish A. `dine` colours the second word. */
 export function DineWord({ dine, className }: { dine?: string; className?: string }) {
   return (
     <span className={className} aria-label="Kabuor Dine">
-      <span aria-hidden>K<ClocheA />buor <span className={dine}>Dine</span></span>
+      <span aria-hidden>K<TableA />buor <span className={dine}>Dine</span></span>
     </span>
   );
 }
