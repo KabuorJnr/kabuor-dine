@@ -109,6 +109,11 @@
   }
 }
 
+/* Ticks and choices in the product's own colour, not the browser's default blue. */
+input[type='checkbox'], input[type='radio'] {
+  accent-color: var(--color-brand);
+}
+
 @utility card {
   @apply rounded-lg bg-card ring-1 ring-line;
 }

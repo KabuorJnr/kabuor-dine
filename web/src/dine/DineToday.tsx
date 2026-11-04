@@ -56,7 +56,7 @@ export default function DineToday() {
                   {data.byHour.map((h) => (
                     <div key={h.hour} className="flex flex-1 flex-col items-center gap-1" title={`${h.hour}:00 · ${h.orders} orders · ${ksh(h.sales)}`}>
                       <div className="w-full max-w-10 rounded-t bg-dine/80" style={{ height: `${Math.max(4, (h.sales / peak) * 128)}px` }} />
-                      <span className="text-[11px] text-muted">{h.hour}</span>
+                      <span className="text-[11px] text-muted">{h.hour === 0 ? '12a' : h.hour < 12 ? `${h.hour}a` : h.hour === 12 ? '12p' : `${h.hour - 12}p`}</span>
                     </div>
                   ))}
                 </div>

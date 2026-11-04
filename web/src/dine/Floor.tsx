@@ -203,17 +203,26 @@ function TableSheet({ table, onClose, onChanged }: { table: FloorTable | null; o
           {/* Orders */}
           <ul className="space-y-2">
             {v.orders.map((o) => (
-              <li key={o.id} className="rounded-lg p-3 ring-1 ring-line">
+              <li key={o.id} className="rounded-xl bg-white p-3.5 ring-1 ring-line">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-sm font-semibold">{o.number}{o.guestName ? ` · ${o.guestName}` : ''}</span>
-                  <span className="flex items-center gap-2">
-                    <Status tone={STATUS[o.status].tone}>{STATUS[o.status].label}</Status>
-                    <span className="num text-sm font-semibold">{ksh(o.total)}</span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold">{o.number}{o.guestName ? ` · ${o.guestName}` : ''}</span>
+                    <span className="text-xs text-muted">{new Date(o.placedAt).toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' })} · {o.lines.reduce((n, l) => n + l.quantity, 0)} items</span>
                   </span>
+                  <Status tone={STATUS[o.status].tone}>{STATUS[o.status].label}</Status>
                 </div>
-                <ul className="mt-2 space-y-0.5 text-sm">
-                  {o.lines.map((l, i) => <li key={i}>{l.quantity} × {l.name}{l.options && <span className="text-muted"> · {l.options}</span>}{l.note && <span className="text-warn"> · {l.note}</span>}</li>)}
+                <ul className="mt-2.5 space-y-1.5 border-t border-line pt-2.5 text-sm">
+                  {o.lines.map((l, i) => (
+                    <li key={i} className="flex justify-between gap-3">
+                      <span className="min-w-0"><span className="font-medium"><span className="text-dine">{l.quantity}×</span> {l.name}</span>
+                        {l.options && <span className="block text-xs text-muted">{l.options}</span>}
+                        {l.note && <span className="mt-0.5 inline-block rounded bg-warn-soft px-1.5 text-xs font-semibold text-warn">{l.note}</span>}
+                      </span>
+                      <span className="num shrink-0 text-muted">{ksh(l.unitPrice * l.quantity)}</span>
+                    </li>
+                  ))}
                 </ul>
+                <p className="num mt-2 flex justify-between border-t border-line pt-2 text-sm font-semibold"><span>Order total</span><span>{ksh(o.total)}</span></p>
                 {o.note && <p className="mt-1 text-sm text-warn">Note: {o.note}</p>}
                 <div className="mt-2 flex flex-wrap gap-2">
                   {o.status === 'Ready' && <button className="btn btn-ghost px-3 py-1.5" disabled={busy !== ''} onClick={() => act(o.id, () => api(`/dine/orders/${o.id}/status`, { body: { status: 'Served' } }))}><Check className="h-4 w-4" /> Served</button>}
@@ -230,10 +239,10 @@ function TableSheet({ table, onClose, onChanged }: { table: FloorTable | null; o
           </ul>
 
           {/* The bill */}
-          <div className="rounded-lg bg-paper p-3">
-            <p className="num flex justify-between font-semibold"><span>Bill</span><span>{ksh(v.total)}</span></p>
-            {v.paid > 0 && <p className="num flex justify-between text-sm text-good"><span>Paid</span><span>{ksh(v.paid)}</span></p>}
-            <p className="num flex justify-between text-sm"><span>To pay</span><span className="font-semibold">{ksh(v.due)}</span></p>
+          <div className="rounded-xl bg-dine-soft/60 p-4 ring-1 ring-dine/10">
+            <p className="num flex justify-between text-sm text-ink-2"><span>Bill</span><span>{ksh(v.total)}</span></p>
+            {v.paid > 0 && <p className="num mt-1 flex justify-between text-sm text-good"><span>Paid</span><span>{ksh(v.paid)}</span></p>}
+            <p className="num mt-2 flex items-baseline justify-between border-t border-dine/15 pt-2"><span className="font-semibold">To pay</span><span className="text-xl font-bold">{ksh(v.due)}</span></p>
             {v.paying && <p className="mt-1 text-xs text-muted">The guest has an M-Pesa prompt open on their phone.</p>}
             {v.receipts.length > 0 && <p className="mt-1 text-xs text-muted">Invoices: {v.receipts.map((r) => r.number).join(', ')}</p>}
             {data?.feedback && <p className="mt-2 text-sm"><Sparkles className="mr-1 inline h-3.5 w-3.5 text-gold" />{'★'.repeat(v.rating)} “{data.feedback}”</p>}
@@ -243,8 +252,8 @@ function TableSheet({ table, onClose, onChanged }: { table: FloorTable | null; o
             {v.status === 'Open' && <button className="btn btn-ghost" onClick={() => setOrdering(true)}><Plus className="h-4 w-4" /> Add order</button>}
             {v.status === 'Open' && v.due > 0 && can(s, 'sales.view') && (
               <button className="btn btn-ghost" disabled={busy !== ''} onClick={() => act('print', async () => {
-                const r = await api<{ id: string }>(`/dine/sessions/${sid}/bill`, { body: {} });
-                window.open(`/sales/${r.id}?print=1`, '_blank');
+                await api(`/dine/sessions/${sid}/bill`, { body: {} });
+                window.open(`/dine/bill/${sid}?print=1`, '_blank');
               })}><Printer className="h-4 w-4" /> Print bill</button>
             )}
             {v.status === 'Open' && v.due > 0 && <button className="btn btn-mpesa" onClick={() => setPaying(true)}><CircleDollarSign className="h-4 w-4" /> Take payment</button>}

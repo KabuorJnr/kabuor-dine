@@ -16,6 +16,7 @@ import MenuSetup from './MenuSetup';
 import Tables from './Tables';
 import DineToday from './DineToday';
 import DineSettingsPage from './DineSettings';
+import BillPrint from './BillPrint';
 
 const NAV: { to: string; label: string; icon: typeof LayoutGrid; need: Permission }[] = [
   { to: '/dine', label: 'Floor', icon: LayoutGrid, need: 'dine' },
@@ -31,6 +32,7 @@ export function DineRoutes() {
   const manage = can(s, 'dine.manage');
   return (
     <Routes>
+      <Route path="bill/:id" element={<BillPrint />} />
       <Route element={<DineShell />}>
         <Route index element={<Floor />} />
         <Route path="kitchen" element={<Kitchen />} />
