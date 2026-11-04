@@ -83,7 +83,7 @@ async function qrWithMark(value: string, size: number): Promise<HTMLCanvasElemen
   ctx.beginPath();
   ctx.roundRect(x, x, box, box, box * 0.22);
   ctx.fill();
-  const w = box * 0.78, h = w * (100 / 120);
+  const w = box * 0.78, h = w * (mark.naturalHeight / mark.naturalWidth || 100 / 120);
   ctx.drawImage(mark, (size - w) / 2, (size - h) / 2, w, h);
   return canvas;
 }

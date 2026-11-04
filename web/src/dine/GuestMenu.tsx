@@ -4,7 +4,11 @@
 // their choices, then "My table": where each order has got to, a button to call the waiter, and the bill.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router';
-import { BellRing, Check, ChefHat, ChevronRight, Flame, Loader2, Minus, Plus, Receipt, Search, Smartphone, Star, Utensils, X } from 'lucide-react';
+import {
+  Apple, Beef, Beer, BellRing, CakeSlice, Check, ChefHat, ChevronRight, Coffee, Cookie, Croissant, CupSoda, Donut, Drumstick, EggFried, Fish, Flame,
+  GlassWater, Hamburger, IceCreamCone, Loader2, Martini, Milk, Minus, Pizza, Plus, Popcorn, Receipt, Salad, Sandwich, Search, Smartphone, Soup, Star,
+  Utensils, UtensilsCrossed, Wheat, Wine, X, type LucideIcon,
+} from 'lucide-react';
 import { cn, ksh } from '../lib/format';
 import { optionText, STATUS, type CartLine, type Dish, type Visit } from './lib';
 import { DineWord } from './Logo';
@@ -196,7 +200,7 @@ export default function GuestMenu() {
               <div className="no-scrollbar -mx-4 mt-2.5 flex snap-x gap-3 overflow-x-auto px-4 pb-1">
                 {popular.map((d) => (
                   <button key={d.id} onClick={() => setPicking(d)} disabled={!menu.open} className="w-40 shrink-0 snap-start overflow-hidden rounded-2xl bg-white text-left shadow-sm ring-1 ring-line transition active:scale-[0.98]">
-                    <Monogram name={d.name} category={d.category} className="h-20 w-full rounded-none text-2xl" />
+                    <DishArt name={d.name} category={d.category} className="h-24 w-full rounded-none" />
                     <span className="block p-3">
                       <span className="line-clamp-2 block min-h-[2.5rem] text-sm leading-snug font-semibold">{d.name}</span>
                       <span className="mt-1.5 flex items-center justify-between"><span className="num text-sm font-bold">{ksh(d.price)}</span><span className="grid h-7 w-7 place-items-center rounded-full bg-dine text-white"><Plus className="h-4 w-4" /></span></span>
@@ -215,7 +219,7 @@ export default function GuestMenu() {
                   <li key={d.id}>
                     <button onClick={() => setPicking(d)} disabled={d.soldOut || !menu.open}
                       className="flex w-full items-center gap-3.5 rounded-2xl bg-white p-3 text-left ring-1 ring-line transition active:scale-[0.99] disabled:opacity-55">
-                      <Monogram name={d.name} category={d.category} className="h-16 w-16 shrink-0" />
+                      <DishArt name={d.name} category={d.category} className="h-16 w-16 shrink-0" />
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center gap-1.5 font-semibold leading-snug">{d.name}{d.popular && <Flame className="h-3.5 w-3.5 shrink-0 text-dine" aria-label="Popular" />}</span>
                         {d.description && <span className="mt-0.5 line-clamp-2 block text-[13px] leading-snug text-muted">{d.description}</span>}
@@ -249,7 +253,7 @@ export default function GuestMenu() {
       {suggest && view === 'menu' && (
         <div className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] z-30 px-4">
           <div className="mx-auto flex max-w-xl items-center gap-3 rounded-2xl bg-white p-3 shadow-xl ring-1 ring-line">
-            <Monogram name={suggest.name} category={suggest.category} className="h-11 w-11 shrink-0 text-base" />
+            <DishArt name={suggest.name} category={suggest.category} className="h-11 w-11 shrink-0 text-base" />
             <span className="min-w-0 flex-1 text-sm leading-snug"><span className="block text-xs text-muted">Goes well with it</span><span className="font-semibold">{suggest.name}</span> <span className="num text-muted">{ksh(suggest.price)}</span></span>
             <button className="btn shrink-0 bg-dine px-3.5 py-2 text-white" onClick={() => { const s = suggest; setSuggest(null); setPicking(s); }}>Add</button>
             <button aria-label="No thanks" className="grid h-8 w-8 place-items-center text-faint" onClick={() => setSuggest(null)}><X className="h-4 w-4" /></button>
@@ -290,12 +294,52 @@ export default function GuestMenu() {
 
 const sectionId = (c: string) => `section-${c.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
-// A dish without a photo still gets a face: its initial on a warm tint chosen by its section, so the list has rhythm.
-const TINTS = ['#F4E9DE', '#EFE6DA', '#F6ECDD', '#ECE4DA', '#F3E6DB', '#EEE8E1'];
-const INKS = ['#8F5F3E', '#6E5440', '#9A6A3A', '#5F4A3A', '#8A5A45', '#6B5B4E'];
-function Monogram({ name, category, className }: { name: string; category: string; className?: string }) {
+// A dish without a photo still gets a picture: a drawing of what it is (grilled meat, fish, a juice, chips, tea...),
+// found from its name and then its section, on a warm tile in the restaurant's browns. The tint follows the section,
+// so a long menu has rhythm.
+const TINTS = [['#F7EDE3', '#EBD9C6'], ['#F3EBE1', '#E3D3C1'], ['#F8EEDF', '#EDDAC0'], ['#F1E9E0', '#E0D2C4'], ['#F6EBE2', '#E8D3C4'], ['#F2ECE6', '#E2D8CD']];
+const INKS = ['#8F5F3E', '#7A5A42', '#9A6A3A', '#6E5443', '#8A5A45', '#76604F'];
+const ART: [RegExp, LucideIcon][] = [
+  [/juice|smoothie|shake|soda|coke|fanta|sprite|krest|stoney|mojito|lemonade/, CupSoda],
+  [/\btea\b|chai|coffee|latte|cappuccino|espresso|macchiato|dawa|cocoa/, Coffee],
+  [/beer|tusker|guinness|pilsner|lager|cider|white cap/, Beer],
+  [/wine/, Wine],
+  [/cocktail|whisk|vodka|\bgin\b|spirit|martini|rum|tequila/, Martini],
+  [/water/, GlassWater],
+  [/milk|yoghurt|yogurt|mala|lassi/, Milk],
+  [/fish|tilapia|samaki|prawn|seafood|calamari|octopus/, Fish],
+  [/chicken|kuku|wings|drumstick/, Drumstick],
+  [/burger/, Hamburger],
+  [/sandwich|wrap|shawarma|toast|panini|sub\b/, Sandwich],
+  [/pizza/, Pizza],
+  [/beef|nyama|goat|mbuzi|steak|choma|ribs|lamb|pork|sausage|mutura|meat|kebab|skewer/, Beef],
+  [/soup|stew|broth|curry|matumbo/, Soup],
+  [/salad|kachumbari|greens|sukuma|vegetable|veg\b/, Salad],
+  [/chips|fries|bhajia|crisps|popcorn|wedges/, Popcorn],
+  [/samosa|mandazi|mahamri|pastry|croissant|pie\b/, Croissant],
+  [/egg|omelette|omelet/, EggFried],
+  [/ugali|chapati|rice|pilau|biryani|bread|mukimo|githeri|maize|pancake|naan/, Wheat],
+  [/ice cream|gelato|sundae/, IceCreamCone],
+  [/cake|dessert|sweet|pudding|brownie/, CakeSlice],
+  [/donut|doughnut/, Donut],
+  [/cookie|biscuit/, Cookie],
+  [/fruit|mango|pineapple|watermelon|banana|apple|pawpaw|passion/, Apple],
+];
+const BY_SECTION: [RegExp, LucideIcon][] = [
+  [/drink|bar|beverage/, CupSoda], [/grill|choma|bbq/, Flame], [/breakfast/, EggFried], [/dessert|sweet/, CakeSlice],
+  [/snack|starter|bite/, Cookie], [/side/, Salad], [/main|lunch|dinner/, UtensilsCrossed],
+];
+const artFor = (name: string, category: string) =>
+  ART.find(([re]) => re.test(name.toLowerCase()))?.[1] ?? BY_SECTION.find(([re]) => re.test((category || '').toLowerCase()))?.[1] ?? Utensils;
+function DishArt({ name, category, className }: { name: string; category: string; className?: string }) {
   const i = [...(category || name)].reduce((n, ch) => n + ch.charCodeAt(0), 0) % TINTS.length;
-  return <span aria-hidden className={cn('grid place-items-center rounded-xl text-xl font-bold', className)} style={{ background: TINTS[i], color: INKS[i] }}>{name.replace(/[^A-Za-z]/g, '').charAt(0).toUpperCase() || '•'}</span>;
+  const Icon = artFor(name, category);
+  return (
+    <span aria-hidden className={cn('relative grid place-items-center overflow-hidden rounded-xl', className)} style={{ background: `linear-gradient(145deg, ${TINTS[i][0]}, ${TINTS[i][1]})`, color: INKS[i] }}>
+      <span className="absolute -top-1/4 -right-1/4 h-3/4 w-3/4 rounded-full bg-white/35" />
+      <Icon className="relative h-[46%] w-[46%]" strokeWidth={1.6} />
+    </span>
+  );
 }
 
 function Page({ children }: { children: React.ReactNode }) {
@@ -340,7 +384,7 @@ function Picker({ dish, onClose, onAdd }: { dish: Dish; onClose: () => void; onA
       </div>
     }>
       <div className="-mt-1 flex items-start gap-3.5">
-        <Monogram name={dish.name} category={dish.category} className="h-16 w-16 shrink-0" />
+        <DishArt name={dish.name} category={dish.category} className="h-16 w-16 shrink-0" />
         <div className="min-w-0">
           {dish.description && <p className="text-sm text-muted">{dish.description}</p>}
           <p className="num mt-1 font-bold">{ksh(dish.price)}</p>
@@ -404,7 +448,7 @@ function Basket({ menu, cart, setCart, onClose, onSend }: {
       <ul className="divide-y divide-line">
         {cart.map((l) => (
           <li key={l.key} className="flex items-center gap-3 py-3">
-            <Monogram name={l.dish.name} category={l.dish.category} className="h-12 w-12 shrink-0 text-base" />
+            <DishArt name={l.dish.name} category={l.dish.category} className="h-12 w-12 shrink-0 text-base" />
             <div className="min-w-0 flex-1">
               <p className="font-semibold leading-snug">{l.dish.name}</p>
               {(optionText(l.choices) || l.note) && <p className="text-sm text-muted">{[optionText(l.choices), l.note].filter(Boolean).join(' · ')}</p>}

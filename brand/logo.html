@@ -4,36 +4,45 @@
 <meta charset="utf-8" />
 <title>Kabuor Dine logo</title>
 <style>
-  /* Kabuor Dine in the Kabuor family style: KABUOR DINE in capitals (the family's KABUOR, DINE in the family's
-     product-name face), with a clean 3D finish. logo.svg and mark.svg are the masters; the PNGs are made from this page. */
-  :root { --espresso: #2E211A; --cream: #FBF7F2; --white: #FFFFFF; }
+  /* Kabuor Dine, drawn like Kabuor ERP and Kabuor Builds: flat, one colour, KABUOR in the family's letters with
+     Dine's own O (the ring cut on the diagonal), then DINE. Blue next to the family; Dine's brown inside the app.
+     The SVGs here are the masters; the PNGs are made from this page. */
+  :root { --espresso: #2E211A; --cream: #FBF7F2; --white: #FFFFFF; --ink: #0A0B1E; }
   * { box-sizing: border-box; margin: 0; }
   body { font-family: system-ui, sans-serif; background: #E9E2D9; padding: 40px; display: grid; gap: 28px; width: 1280px; }
   .panel { border-radius: 28px; padding: 64px 72px; display: flex; align-items: center; }
   .ink { background: var(--espresso); }
+  .navy { background: var(--ink); }
   .white { background: var(--white); }
   .cream { background: var(--cream); }
   .lockup { display: flex; align-items: center; }
-  .lockup img { height: 104px; width: auto; }
+  .lockup img { height: 96px; width: auto; }
   .icons { display: flex; gap: 28px; }
-  .icon { width: 220px; height: 220px; border-radius: 52px; display: grid; place-items: center; }
-  .icon img { width: 150px; }
+  .icon { width: 220px; height: 220px; border-radius: 52px; display: grid; place-items: center; overflow: hidden; }
+  .icon img { width: 220px; }
   .label { font-size: 15px; letter-spacing: .2em; text-transform: uppercase; color: #6b5e52; font-weight: 600; }
 </style>
 </head>
 <body>
-  <div class="label">Logo · on white</div>
+  <div class="label">In the Dine app · on white</div>
   <div class="panel white" id="light">
     <div class="lockup"><img src="logo.svg" alt="Kabuor Dine" /></div>
   </div>
-  <div class="label">Logo · on espresso</div>
+  <div class="label">In the Dine app · on espresso (the kitchen screen)</div>
   <div class="panel ink" id="dark">
     <div class="lockup"><img src="logo-on-dark.svg" alt="Kabuor Dine" /></div>
   </div>
-  <div class="label">Profile / app icon</div>
+  <div class="label">With the Kabuor family · blue, and white on dark</div>
+  <div class="panel white" id="blue">
+    <div class="lockup"><img src="logo-blue.svg" alt="Kabuor Dine" /></div>
+  </div>
+  <div class="panel navy" id="white">
+    <div class="lockup"><img src="logo-white.svg" alt="Kabuor Dine" /></div>
+  </div>
+  <div class="label">App icon</div>
   <div class="icons">
-    <div class="icon cream" id="icon-light"><img src="mark.svg" alt="" /></div>
-    <div class="icon ink" id="icon-dark"><img src="mark-on-dark.svg" alt="" /></div>
+    <div class="icon" id="icon-light"><img src="icon.svg" alt="" /></div>
+    <div class="icon cream" id="icon-dark"><img src="mark.svg" alt="" style="width:150px" /></div>
   </div>
 </body>
 </html>

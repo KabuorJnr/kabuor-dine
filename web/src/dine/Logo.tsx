@@ -1,6 +1,6 @@
-// The Kabuor Dine logo, in the Kabuor family style (like Kabuor Technologies, Kabuor Builds and Kabuor ERP):
-// KABUOR DINE in capitals, the family's own KABUOR with DINE in the family's product-name face, with a clean 3D
-// finish. The mark is Dine's O. brand/logo.svg and brand/mark.svg are the masters; brand/logo.html makes the PNGs.
+// The Kabuor Dine logo, drawn like Kabuor ERP's and Kabuor Builds': flat, one colour, KABUOR in the family's own
+// letters with Dine's O (the ring cut on the diagonal), then DINE. In the app it's in Dine's brown (tan on dark
+// screens); next to the family it's blue (kabuor-dine-logo-blue.svg). The mark is Dine's O. brand/ holds the masters.
 import { cn } from '../lib/format';
 
 /** The logo, KABUOR DINE. Size it by height: it is about 8.7 times as wide as it is tall. */
@@ -8,7 +8,7 @@ export function DineLockup({ className, dark = false }: { className?: string; da
   return <img src={dark ? '/brand/kabuor-dine-logo-on-dark.svg' : '/brand/kabuor-dine-logo.svg'} alt="Kabuor Dine" className={cn('w-auto', className)} />;
 }
 
-/** The mark: Dine's O in 3D, for icons and small spaces. */
+/** The mark: Dine's O, for icons and small spaces. */
 export function DineMark({ className, dark = false }: { className?: string; dark?: boolean }) {
   return <img src={dark ? '/brand/kabuor-dine-mark-on-dark.svg' : '/brand/kabuor-dine-mark.svg'} alt="" aria-hidden className={cn('w-auto', className)} />;
 }
