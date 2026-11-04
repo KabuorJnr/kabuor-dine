@@ -9,7 +9,7 @@ import { cn } from '../lib/format';
 import { TrialBanner } from '../components/Plan';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { Sheet } from '../components/ui';
-import { DineMark, DineWord } from './Logo';
+import { DineWord } from './Logo';
 import Floor from './Floor';
 import Kitchen from './Kitchen';
 import MenuSetup from './MenuSetup';
@@ -65,9 +65,8 @@ function DineShell() {
       <header className={cn('sticky top-0 z-40 print:hidden', kitchen ? 'bg-dine-night text-white' : 'border-b border-dine/10 bg-white/90 text-ink backdrop-blur')}>
         <div className="mx-auto flex max-w-[1400px] items-center gap-3 px-4 py-2.5">
           <NavLink to="/dine" className="flex min-w-0 shrink-0 items-center gap-2">
-            <DineMark className="h-8 shrink-0" dark={kitchen} />
             <span className="min-w-0 leading-tight">
-              <DineWord className="font-brand block text-[15px] font-extrabold tracking-[-0.03em]" dine={kitchen ? 'text-[#D6B394]' : 'text-dine'} />
+              <DineWord dark={kitchen} className="block h-[17px]" />
               <span className={cn('block max-w-[200px] truncate text-[11px]', kitchen ? 'text-white/60' : 'text-muted')}>{s.company.name}</span>
             </span>
           </NavLink>

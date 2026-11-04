@@ -33,9 +33,9 @@ export default function Landing() {
     <div className="min-h-screen bg-white text-ink">
       <header className="bg-gradient-to-b from-dine-soft via-cream to-white text-espresso">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
-          <Link to="/" aria-label="Kabuor Dine home"><DineLockup className="h-12 sm:h-14" /></Link>
+          <Link to="/" aria-label="Kabuor Dine home"><DineLockup className="h-[18px] sm:h-8" /></Link>
           <nav className="flex items-center gap-2 text-sm font-semibold">
-            <Link to="/signin" className="rounded-md px-3 py-2 text-ink-2 hover:text-ink">Sign in</Link>
+            <Link to="/signin" className="rounded-md px-3 py-2 whitespace-nowrap text-ink-2 hover:text-ink">Sign in</Link>
             <Link to="/signup" className="btn bg-dine px-4 py-2 text-white hover:bg-dine-hover">Start</Link>
           </nav>
         </div>

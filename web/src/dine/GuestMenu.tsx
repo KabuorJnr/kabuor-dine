@@ -7,7 +7,7 @@ import { useParams } from 'react-router';
 import { BellRing, Check, ChefHat, ChevronRight, Flame, Loader2, Minus, Plus, Receipt, Search, Smartphone, Star, Utensils, X } from 'lucide-react';
 import { cn, ksh } from '../lib/format';
 import { optionText, STATUS, type CartLine, type Dish, type Visit } from './lib';
-import { DineMark } from './Logo';
+import { DineWord } from './Logo';
 
 type Menu = {
   restaurant: { name: string; phone: string; county: string; paybill: string; welcome: string };
@@ -235,7 +235,7 @@ export default function GuestMenu() {
           ))}
           {q && shown.length === 0 && <p className="px-6 py-16 text-center text-muted">Nothing on the menu matches “{search.trim()}”.</p>}
           {dishes.length === 0 && <p className="px-6 py-16 text-center text-muted">The menu is being prepared. Please ask a waiter.</p>}
-          <p className="flex items-center justify-center gap-1.5 px-6 pt-10 text-center text-xs text-faint">Prices include VAT · <DineMark className="h-3.5" /> Powered by Kabuor Dine</p>
+          <p className="flex items-center justify-center gap-1.5 px-6 pt-10 text-center text-xs text-faint">Prices include VAT · Powered by <DineWord className="h-3" /></p>
         </main>
       )}
 

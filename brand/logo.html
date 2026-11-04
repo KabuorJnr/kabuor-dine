@@ -4,26 +4,17 @@
 <meta charset="utf-8" />
 <title>Kabuor Dine logo</title>
 <style>
-  @font-face { font-family: 'Bricolage'; src: url(fonts/bricolage.woff2) format('woff2'); font-weight: 200 800; }
-  @font-face { font-family: 'Fraunces'; src: url(fonts/fraunces-italic.woff2) format('woff2'); font-style: italic; font-weight: 100 900; }
-  :root { --espresso: #2E211A; --brown: #9C6B4A; --cream: #FBF7F2; --white: #FFFFFF; }
+  /* Kabuor Dine in the Kabuor family style: KABUOR DINE in capitals (the family's KABUOR, DINE in the family's
+     product-name face), with a clean 3D finish. logo.svg and mark.svg are the masters; the PNGs are made from this page. */
+  :root { --espresso: #2E211A; --cream: #FBF7F2; --white: #FFFFFF; }
   * { box-sizing: border-box; margin: 0; }
-  body { font-family: 'Bricolage', system-ui, sans-serif; background: #E9E2D9; padding: 40px; display: grid; gap: 28px; width: 1280px; }
-  .panel { border-radius: 28px; padding: 64px 72px; display: flex; align-items: center; gap: 56px; }
-  .ink { background: var(--espresso); color: var(--cream); }
-  .cream { background: var(--cream); color: var(--espresso); }
-  .white { background: var(--white); color: var(--espresso); }
-  .lockup { display: flex; align-items: center; gap: 24px; }
-  .lockup img { width: 150px; }
-  .word { line-height: .86; font-size: 76px; font-weight: 800; letter-spacing: -0.045em; font-variation-settings: "wdth" 85; }
-  .word b { display: block; color: var(--brown); font-weight: 800; }
-  /* The A of Kabuor is a table with the covered dish on it: the dish is the point, the table top the crossbar,
-     the table legs its legs. Wood, so it stands out in the word. */
-  .table-a { display: inline-block; width: .8em; height: .7em; vertical-align: -.02em; margin: 0 .03em 0 .05em; }
-  .ink .word b { color: #D6B394; }
-  .tag { margin-top: 14px; font-family: 'Fraunces'; font-style: italic; font-weight: 500; font-size: 30px; letter-spacing: -0.01em; font-variation-settings: "SOFT" 100, "WONK" 1; }
-  .ink .tag { color: #E8D3C0; }
-  .cream .tag, .white .tag { color: #7A5038; }
+  body { font-family: system-ui, sans-serif; background: #E9E2D9; padding: 40px; display: grid; gap: 28px; width: 1280px; }
+  .panel { border-radius: 28px; padding: 64px 72px; display: flex; align-items: center; }
+  .ink { background: var(--espresso); }
+  .white { background: var(--white); }
+  .cream { background: var(--cream); }
+  .lockup { display: flex; align-items: center; }
+  .lockup img { height: 104px; width: auto; }
   .icons { display: flex; gap: 28px; }
   .icon { width: 220px; height: 220px; border-radius: 52px; display: grid; place-items: center; }
   .icon img { width: 150px; }
@@ -31,13 +22,13 @@
 </style>
 </head>
 <body>
-  <div class="label">Primary lockup · on white</div>
+  <div class="label">Logo · on white</div>
   <div class="panel white" id="light">
-    <div class="lockup"><img src="mark.svg" alt="" /><div><div class="word" aria-label="Kabuor Dine">K<svg class="table-a" viewBox="0 0 80 70" aria-hidden="true"><defs><linearGradient id="l-oak" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8BE84"/><stop offset=".55" stop-color="#C98D50"/><stop offset="1" stop-color="#A46A36"/></linearGradient><linearGradient id="l-leg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#A86C38"/><stop offset="1" stop-color="#70431E"/></linearGradient><linearGradient id="l-wal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#A9734C"/><stop offset=".55" stop-color="#7C4C2F"/><stop offset="1" stop-color="#55321D"/></linearGradient><clipPath id="l-dome"><path d="M16 33 A24 25 0 0 1 64 33 Z"/></clipPath></defs><path d="M22 46 L37 46 L18 68 L2 68 Z" fill="url(#l-leg)"/><path d="M43 46 L58 46 L78 68 L62 68 Z" fill="url(#l-leg)"/><rect x="0" y="36" width="80" height="11" rx="3" fill="url(#l-oak)"/><rect x="0" y="36" width="80" height="2.6" rx="1.3" fill="#F6D9A8" opacity=".8"/><path d="M5 42.5 Q28 40.6 50 42.8 T76 41.6" fill="none" stroke="#7A4A22" stroke-opacity=".4" stroke-width=".8"/><rect x="10" y="32" width="60" height="4.5" rx="2.25" fill="#F7EFE6"/><path d="M16 33 A24 25 0 0 1 64 33 Z" fill="url(#l-wal)"/><g clip-path="url(#l-dome)" fill="none" stroke="#2E170A" stroke-opacity=".22" stroke-width=".9"><path d="M12 32 Q40 15 68 32"/><path d="M12 25 Q40 8 68 25"/><path d="M12 18 Q40 1 68 18"/></g><path d="M22 29 A19 20 0 0 1 32 15" fill="none" stroke="#FFFFFF" stroke-opacity=".25" stroke-width="2.4" stroke-linecap="round"/><rect x="38" y="7" width="4" height="3" fill="#55321D"/><circle cx="40" cy="5" r="4.8" fill="url(#l-wal)"/></svg>buor<b>Dine</b></div><div class="tag">Karibu mezani.</div></div></div>
+    <div class="lockup"><img src="logo.svg" alt="Kabuor Dine" /></div>
   </div>
-  <div class="label">Primary lockup · on espresso</div>
+  <div class="label">Logo · on espresso</div>
   <div class="panel ink" id="dark">
-    <div class="lockup"><img src="mark-on-dark.svg" alt="" /><div><div class="word" aria-label="Kabuor Dine">K<svg class="table-a" viewBox="0 0 80 70" aria-hidden="true"><defs><linearGradient id="d-oak" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8BE84"/><stop offset=".55" stop-color="#C98D50"/><stop offset="1" stop-color="#A46A36"/></linearGradient><linearGradient id="d-leg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#A86C38"/><stop offset="1" stop-color="#70431E"/></linearGradient><linearGradient id="d-wal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#A9734C"/><stop offset=".55" stop-color="#7C4C2F"/><stop offset="1" stop-color="#55321D"/></linearGradient><clipPath id="d-dome"><path d="M16 33 A24 25 0 0 1 64 33 Z"/></clipPath></defs><path d="M22 46 L37 46 L18 68 L2 68 Z" fill="url(#d-leg)"/><path d="M43 46 L58 46 L78 68 L62 68 Z" fill="url(#d-leg)"/><rect x="0" y="36" width="80" height="11" rx="3" fill="url(#d-oak)"/><rect x="0" y="36" width="80" height="2.6" rx="1.3" fill="#F6D9A8" opacity=".8"/><path d="M5 42.5 Q28 40.6 50 42.8 T76 41.6" fill="none" stroke="#7A4A22" stroke-opacity=".4" stroke-width=".8"/><rect x="10" y="32" width="60" height="4.5" rx="2.25" fill="#F7EFE6"/><path d="M16 33 A24 25 0 0 1 64 33 Z" fill="url(#d-wal)"/><g clip-path="url(#d-dome)" fill="none" stroke="#2E170A" stroke-opacity=".22" stroke-width=".9"><path d="M12 32 Q40 15 68 32"/><path d="M12 25 Q40 8 68 25"/><path d="M12 18 Q40 1 68 18"/></g><path d="M22 29 A19 20 0 0 1 32 15" fill="none" stroke="#FFFFFF" stroke-opacity=".25" stroke-width="2.4" stroke-linecap="round"/><rect x="38" y="7" width="4" height="3" fill="#55321D"/><circle cx="40" cy="5" r="4.8" fill="url(#d-wal)"/></svg>buor<b>Dine</b></div><div class="tag">Karibu mezani.</div></div></div>
+    <div class="lockup"><img src="logo-on-dark.svg" alt="Kabuor Dine" /></div>
   </div>
   <div class="label">Profile / app icon</div>
   <div class="icons">

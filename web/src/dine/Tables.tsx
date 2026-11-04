@@ -7,7 +7,7 @@ import { api, useApi, useSession } from '../lib/api';
 import { ErrorNote, Field, Loading, PageError, PageHeader, Sheet, SheetFooter, confirmDialog } from '../components/ui';
 import { printAs } from '../components/PrintDoc';
 import { tableUrl } from './lib';
-import { DineMark } from './Logo';
+import { DineWord } from './Logo';
 
 type Table = { id: string; name: string; area: string; seats: number; token: string };
 
@@ -42,7 +42,7 @@ export default function Tables() {
             <Qr value={tableUrl(t.token)} />
             <p className="text-[15px] font-semibold text-espresso">Scan to see the menu, order and pay</p>
             <p className="mt-0.5 text-xs text-muted">No app or sign-up. Pay by M-Pesa from your phone.</p>
-            <p className="mt-3 flex items-center gap-1.5 text-[10px] font-semibold text-faint"><DineMark className="h-3.5" /> Kabuor Dine</p>
+            <p className="mt-3 flex items-center"><DineWord className="h-3" /></p>
             <div className="mt-3 flex gap-1 print:hidden" data-screen-only>
               <button className="grid h-9 w-9 place-items-center rounded-md text-muted hover:bg-paper" aria-label={`Download ${t.name}'s card`} title="Download the card (PNG)" onClick={() => void downloadCard(t, s?.company.name ?? '')}><Download className="h-4 w-4" /></button>
               <button className="grid h-9 w-9 place-items-center rounded-md text-muted hover:bg-paper" aria-label={`Copy ${t.name}'s link`} title="Copy the link"
@@ -125,10 +125,9 @@ async function downloadCard(t: Table, restaurant: string) {
   g.fillText('Scan to see the menu, order and pay', W / 2, 1360, W - 120);
   g.fillStyle = '#585C80'; g.font = '500 40px Onest, sans-serif';
   g.fillText('No app or sign-up. Pay by M-Pesa from your phone.', W / 2, 1430, W - 120);
-  const mark = await loadImage('/brand/kabuor-dine-mark.svg');
-  g.drawImage(mark, W / 2 - 150, 1545, 60, 50);
-  g.textAlign = 'left'; g.fillStyle = '#8A8DB0'; g.font = '600 36px Onest, sans-serif';
-  g.fillText('Kabuor Dine', W / 2 - 78, 1585);
+  const logo = await loadImage('/brand/kabuor-dine-logo.svg');
+  const lh = 52, lw = lh * (logo.naturalWidth / logo.naturalHeight);
+  g.drawImage(logo, (W - lw) / 2, 1540, lw, lh);
   const a = document.createElement('a');
   a.href = c.toDataURL('image/png');
   a.download = `${restaurant || 'Kabuor Dine'} - ${t.name} QR.png`.replace(/[\\/:*?"<>|]+/g, '-');

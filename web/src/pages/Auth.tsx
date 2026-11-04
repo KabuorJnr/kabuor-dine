@@ -75,7 +75,7 @@ export function Frame({ children, hideShowcase = false, dine = true }: { childre
       <div className={cn('w-full rounded-3xl bg-white p-2 shadow-[0_8px_40px_rgb(10_11_30/0.08)] ring-1 ring-line', hideShowcase ? 'max-w-[480px]' : 'grid max-w-[1040px] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]')}>
         <div className="flex min-w-0 flex-col px-5 pt-6 pb-4 sm:px-10 sm:pt-9">
           {dine
-            ? <Link to="/" className="self-start" aria-label="Kabuor Dine home"><DineLockup className="h-11" /></Link>
+            ? <Link to="/" className="self-start" aria-label="Kabuor Dine home"><DineLockup className="h-7" /></Link>
             : <img src="/brand/kabuor-erp-logo-blue.svg" alt="Kabuor ERP" className="h-6 w-auto self-start" />}
           <div className="flex flex-1 flex-col justify-center py-8">{children}</div>
           <footer className="flex items-center justify-between border-t border-line pt-4 text-xs text-faint">
@@ -97,7 +97,7 @@ function DineShowcase() {
   return (
     <div className="hidden flex-col justify-between rounded-[20px] bg-gradient-to-br from-dine-soft to-cream p-9 text-espresso lg:flex">
       <div>
-        <DineLockup className="h-20" />
+        <DineLockup className="h-9" />
         <h2 className="font-brand mt-6 text-3xl leading-tight font-extrabold tracking-[-0.03em]">Guests order from the table. The kitchen sees it at once. The bill pays itself.</h2>
       </div>
       <ul className="space-y-5">

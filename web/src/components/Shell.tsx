@@ -16,7 +16,7 @@ import ErrorBoundary from './ErrorBoundary';
 import TellMe from './TellMe';
 import { TrialBanner } from './Plan';
 import { Sheet } from './ui';
-import { DineMark, DineWord } from '../dine/Logo';
+import { DineWord } from '../dine/Logo';
 
 export default function Shell({ session }: { session: Session }) {
   const { t, lang } = useLang();
@@ -127,7 +127,7 @@ export default function Shell({ session }: { session: Session }) {
       <aside className="sticky top-0 hidden h-svh flex-col border-r border-line bg-white px-3 py-4 lg:flex print:!hidden">
         <div className="min-w-0 px-2 leading-tight">
           {session.company.product === 'dine'
-            ? <span className="flex items-center gap-2"><DineMark className="h-7 shrink-0" /><span className="leading-tight"><DineWord className="font-brand block text-[15px] font-extrabold tracking-[-0.03em] text-espresso" dine="text-dine" /><span className="block text-2xs font-semibold tracking-wider text-faint uppercase">Back office</span></span></span>
+            ? <span className="block leading-tight"><DineWord className="block h-[17px]" /><span className="mt-1.5 block text-2xs font-semibold tracking-wider text-faint uppercase">Back office</span></span>
             : <img src="/brand/kabuor-erp-logo-blue.svg" alt="Kabuor ERP" className="h-5 w-auto" />}
           <p className="mt-1.5 truncate text-xs text-muted">
             {session.user.isPlatformAdmin ? 'Platform Admin Console' : session.company.name}
