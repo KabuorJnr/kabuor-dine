@@ -4,7 +4,7 @@
 // their choices, then "My table": where each order has got to, a button to call the waiter, and the bill.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router';
-import { BellRing, Check, ChefHat, ChevronRight, Flame, Loader2, Minus, Plus, Receipt, ShoppingBag, Smartphone, Star, Utensils, X } from 'lucide-react';
+import { BellRing, Check, ChefHat, ChevronRight, Flame, Loader2, Minus, Plus, Receipt, Search, Smartphone, Star, Utensils, X } from 'lucide-react';
 import { cn, ksh } from '../lib/format';
 import { optionText, STATUS, type CartLine, type Dish, type Visit } from './lib';
 
@@ -40,7 +40,8 @@ export default function GuestMenu() {
   const [visit, setVisit] = useState<Visit | null>(null);
   const [error, setError] = useState('');
   const [view, setView] = useState<'menu' | 'table'>('menu');
-  const [category, setCategory] = useState('');
+  const [search, setSearch] = useState('');
+  const [current, setCurrent] = useState('');
   const [picking, setPicking] = useState<Dish | null>(null);
   const [suggest, setSuggest] = useState<Dish | null>(null);
   const [cart, setCart] = useState<CartLine[]>([]);
@@ -63,6 +64,18 @@ export default function GuestMenu() {
   const dishes = menu?.menu ?? [];
   const categories = useMemo(() => [...new Set(dishes.map((d) => d.category || 'Menu'))], [dishes]);
   const popular = dishes.filter((d) => d.popular && !d.soldOut);
+  // The section on screen lights up its chip as the guest scrolls.
+  useEffect(() => {
+    if (!menu || view !== 'menu') return;
+    const els = [...document.querySelectorAll<HTMLElement>('[data-section]')];
+    if (!els.length) return;
+    const io = new IntersectionObserver((entries) => {
+      const top = entries.filter((e) => e.isIntersecting).sort((x, y) => x.boundingClientRect.top - y.boundingClientRect.top)[0];
+      if (top) setCurrent(top.target.getAttribute('data-section') ?? '');
+    }, { rootMargin: '-120px 0px -60% 0px' });
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [menu, view, search, categories.length]);
   const count = cart.reduce((n, l) => n + l.quantity, 0);
   const total = cart.reduce((n, l) => n + l.quantity * l.dish.price, 0);
 
@@ -91,26 +104,36 @@ export default function GuestMenu() {
 
   const live = visit && visit.status !== 'Closed' && visit.orders.length > 0;
   const waiting = visit?.orders.filter((o) => o.status !== 'Served').length ?? 0;
+  const q = search.trim().toLowerCase();
+  const shown = q ? dishes.filter((d) => d.name.toLowerCase().includes(q) || d.description.toLowerCase().includes(q) || (d.category || '').toLowerCase().includes(q)) : dishes;
+  const sections = categories.filter((c) => shown.some((d) => (d.category || 'Menu') === c));
+  const jump = (c: string) => {
+    const el = document.getElementById(sectionId(c));
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - (live ? 160 : 112), behavior: 'smooth' });
+  };
 
   return (
     <Page>
       {/* Header: where you are */}
-      <header className="bg-dine-night px-5 pt-6 pb-5 text-white">
+      <header className="bg-dine-night px-5 pt-[calc(env(safe-area-inset-top)+1.25rem)] pb-5 text-white">
         <div className="mx-auto max-w-xl">
-          <p className="text-xs font-semibold tracking-[0.18em] text-orange-200/80 uppercase">{menu.table.name}{menu.table.area ? ` · ${menu.table.area}` : ''}</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight">{menu.restaurant.name}</h1>
+          <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.16em] text-orange-200/85 uppercase">
+            <span className={cn('h-2 w-2 rounded-full', menu.open ? 'bg-green-400' : 'bg-white/40')} aria-hidden />
+            {menu.table.name}{menu.table.area ? ` · ${menu.table.area}` : ''}
+          </p>
+          <h1 className="mt-1.5 text-[26px] leading-tight font-bold tracking-tight">{menu.restaurant.name}</h1>
           <p className="mt-1 text-sm text-white/70">{menu.restaurant.welcome || 'Order from your phone. We’ll bring it to your table.'}</p>
-          {!menu.open && <p className="mt-3 rounded-md bg-white/10 px-3 py-2 text-sm">We’re not taking orders from the table right now. Please ask a waiter.</p>}
+          {!menu.open && <p className="mt-3 rounded-lg bg-white/10 px-3 py-2 text-sm">We’re not taking orders from the table right now. Please ask a waiter.</p>}
         </div>
       </header>
 
       {/* Menu | My table */}
       {live && (
-        <div className="sticky top-0 z-20 border-b border-line bg-white">
-          <div className="mx-auto flex max-w-xl">
+        <div className="sticky top-0 z-20 border-b border-line bg-white/95 backdrop-blur">
+          <div className="mx-auto flex max-w-xl" role="tablist">
             {(['menu', 'table'] as const).map((v) => (
-              <button key={v} onClick={() => setView(v)} className={cn('flex-1 py-3 text-sm font-semibold', view === v ? 'border-b-2 border-dine text-dine' : 'text-muted')}>
-                {v === 'menu' ? 'Menu' : <>My table{waiting > 0 && <span className="ml-1.5 rounded-full bg-dine px-1.5 py-0.5 text-[11px] text-white">{waiting}</span>}{visit!.due > 0 && waiting === 0 && <span className="ml-1.5 text-xs text-muted">· {ksh(visit!.due)} to pay</span>}</>}
+              <button key={v} role="tab" aria-selected={view === v} onClick={() => { setView(v); window.scrollTo({ top: 0 }); }} className={cn('flex flex-1 items-center justify-center gap-1.5 border-b-2 py-3 text-sm font-semibold transition', view === v ? 'border-dine text-dine' : 'border-transparent text-muted')}>
+                {v === 'menu' ? 'Menu' : <>My table{waiting > 0 ? <span className="grid h-5 min-w-5 place-items-center rounded-full bg-dine px-1.5 text-[11px] text-white">{waiting}</span> : visit!.due > 0 && <span className="text-xs font-medium text-muted">· {ksh(visit!.due)} to pay</span>}</>}
               </button>
             ))}
           </div>
@@ -120,63 +143,82 @@ export default function GuestMenu() {
       {view === 'table' && visit ? (
         <MyTable menu={menu} visit={visit} setVisit={setVisit} call={call} onMore={() => setView('menu')} />
       ) : (
-        <main className="mx-auto max-w-xl pb-32">
-          {/* Sections */}
-          <nav className={cn('no-scrollbar sticky z-10 flex gap-2 overflow-x-auto bg-paper/95 px-4 py-3 backdrop-blur', live ? 'top-[45px]' : 'top-0')}>
-            {['', ...categories].map((c) => (
-              <button key={c || 'all'} onClick={() => { setCategory(c); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                className={cn('shrink-0 rounded-full px-3.5 py-1.5 text-sm font-semibold ring-1 transition', category === c ? 'bg-dine text-white ring-dine' : 'bg-white text-ink-2 ring-line')}>
-                {c || 'All'}
-              </button>
-            ))}
-          </nav>
+        <main className="mx-auto max-w-xl pb-36">
+          {/* Search and sections, kept in reach while scrolling */}
+          <div className={cn('sticky z-10 space-y-2.5 bg-paper/95 px-4 pt-3 pb-2.5 backdrop-blur', live ? 'top-[45px]' : 'top-0')}>
+            <label className="relative block">
+              <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-faint" />
+              <input value={search} onChange={(e) => setSearch(e.target.value)} type="search" placeholder="Search the menu" aria-label="Search the menu"
+                className="w-full rounded-full bg-white py-2.5 pr-4 pl-10 text-base ring-1 ring-line outline-none placeholder:text-faint focus:ring-2 focus:ring-dine sm:text-sm" />
+            </label>
+            {!q && sections.length > 1 && (
+              <nav className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4" aria-label="Menu sections">
+                {sections.map((c) => (
+                  <button key={c} onClick={() => jump(c)} aria-current={current === c ? 'true' : undefined}
+                    className={cn('shrink-0 rounded-full px-3.5 py-1.5 text-sm font-semibold ring-1 transition', current === c ? 'bg-ink text-white ring-ink' : 'bg-white text-ink-2 ring-line')}>
+                    {c}
+                  </button>
+                ))}
+              </nav>
+            )}
+          </div>
 
-          {!category && popular.length > 0 && (
-            <section className="px-4 pt-2">
+          {!q && popular.length > 0 && (
+            <section className="px-4 pt-3">
               <h2 className="flex items-center gap-1.5 text-sm font-bold"><Flame className="h-4 w-4 text-dine" /> Guests love</h2>
-              <div className="no-scrollbar -mx-4 mt-2 flex gap-3 overflow-x-auto px-4 pb-1">
+              <div className="no-scrollbar -mx-4 mt-2.5 flex snap-x gap-3 overflow-x-auto px-4 pb-1">
                 {popular.map((d) => (
-                  <button key={d.id} onClick={() => setPicking(d)} disabled={!menu.open} className="w-44 shrink-0 rounded-xl bg-white p-3 text-left shadow-sm ring-1 ring-line">
-                    <span className="line-clamp-2 block text-sm font-semibold">{d.name}</span>
-                    <span className="mt-2 flex items-center justify-between text-sm"><span className="num font-semibold text-dine">{ksh(d.price)}</span><Plus className="h-4 w-4 text-dine" /></span>
+                  <button key={d.id} onClick={() => setPicking(d)} disabled={!menu.open} className="w-40 shrink-0 snap-start overflow-hidden rounded-2xl bg-white text-left shadow-sm ring-1 ring-line transition active:scale-[0.98]">
+                    <Monogram name={d.name} category={d.category} className="h-20 w-full rounded-none text-2xl" />
+                    <span className="block p-3">
+                      <span className="line-clamp-2 block min-h-[2.5rem] text-sm leading-snug font-semibold">{d.name}</span>
+                      <span className="mt-1.5 flex items-center justify-between"><span className="num text-sm font-bold">{ksh(d.price)}</span><span className="grid h-7 w-7 place-items-center rounded-full bg-dine text-white"><Plus className="h-4 w-4" /></span></span>
+                    </span>
                   </button>
                 ))}
               </div>
             </section>
           )}
 
-          {(category ? [category] : categories).map((c) => (
-            <section key={c} className="px-4 pt-5">
-              <h2 className="text-base font-bold">{c}</h2>
-              <ul className="mt-2 divide-y divide-line overflow-hidden rounded-xl bg-white ring-1 ring-line">
-                {dishes.filter((d) => (d.category || 'Menu') === c).map((d) => (
+          {sections.map((c) => (
+            <section key={c} id={sectionId(c)} data-section={c} className="px-4 pt-6">
+              <h2 className="flex items-baseline justify-between text-lg font-bold tracking-tight">{c}<span className="text-xs font-medium text-faint">{shown.filter((d) => (d.category || 'Menu') === c).length}</span></h2>
+              <ul className="mt-2.5 space-y-2.5">
+                {shown.filter((d) => (d.category || 'Menu') === c).map((d) => (
                   <li key={d.id}>
-                    <button onClick={() => setPicking(d)} disabled={d.soldOut || !menu.open} className="flex w-full items-start gap-3 px-4 py-3.5 text-left disabled:opacity-55">
+                    <button onClick={() => setPicking(d)} disabled={d.soldOut || !menu.open}
+                      className="flex w-full items-center gap-3.5 rounded-2xl bg-white p-3 text-left ring-1 ring-line transition active:scale-[0.99] disabled:opacity-55">
+                      <Monogram name={d.name} category={d.category} className="h-16 w-16 shrink-0" />
                       <span className="min-w-0 flex-1">
-                        <span className="block font-semibold">{d.name}</span>
-                        {d.description && <span className="mt-0.5 line-clamp-2 block text-sm text-muted">{d.description}</span>}
-                        <span className="num mt-1.5 block text-sm font-semibold text-ink">{ksh(d.price)}</span>
+                        <span className="flex items-center gap-1.5 font-semibold leading-snug">{d.name}{d.popular && <Flame className="h-3.5 w-3.5 shrink-0 text-dine" aria-label="Popular" />}</span>
+                        {d.description && <span className="mt-0.5 line-clamp-2 block text-[13px] leading-snug text-muted">{d.description}</span>}
+                        <span className="mt-1.5 flex items-center gap-2">
+                          <span className="num text-sm font-bold">{ksh(d.price)}</span>
+                          {d.options.length > 0 && <span className="text-xs text-faint">· {d.options.length === 1 ? `choose ${d.options[0].name.toLowerCase()}` : `${d.options.length} choices`}</span>}
+                        </span>
                       </span>
                       {d.soldOut
-                        ? <span className="mt-1 shrink-0 rounded-full bg-paper px-2.5 py-1 text-xs font-semibold text-muted">Finished</span>
-                        : <span className="mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-dine-soft text-dine"><Plus className="h-4 w-4" /></span>}
+                        ? <span className="shrink-0 rounded-full bg-paper px-2.5 py-1 text-xs font-semibold text-muted">Finished</span>
+                        : <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-dine-soft text-dine"><Plus className="h-[18px] w-[18px]" /></span>}
                     </button>
                   </li>
                 ))}
               </ul>
             </section>
           ))}
+          {q && shown.length === 0 && <p className="px-6 py-16 text-center text-muted">Nothing on the menu matches “{search.trim()}”.</p>}
           {dishes.length === 0 && <p className="px-6 py-16 text-center text-muted">The menu is being prepared. Please ask a waiter.</p>}
-          <p className="px-6 pt-8 text-center text-xs text-faint">Prices include VAT. Powered by Kabuor Dine.</p>
+          <p className="px-6 pt-10 text-center text-xs text-faint">Prices include VAT · Powered by Kabuor Dine</p>
         </main>
       )}
 
       {/* "Goes well with" */}
       {suggest && view === 'menu' && (
-        <div className="fixed inset-x-0 bottom-20 z-30 px-4">
-          <div className="mx-auto flex max-w-xl items-center gap-3 rounded-xl bg-white p-3 shadow-lg ring-1 ring-line">
-            <span className="min-w-0 flex-1 text-sm"><span className="text-muted">Goes well with it: </span><span className="font-semibold">{suggest.name}</span> <span className="num text-muted">{ksh(suggest.price)}</span></span>
-            <button className="btn shrink-0 bg-dine px-3 py-2 text-white" onClick={() => { const s = suggest; setSuggest(null); setPicking(s); }}>Add</button>
+        <div className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] z-30 px-4">
+          <div className="mx-auto flex max-w-xl items-center gap-3 rounded-2xl bg-white p-3 shadow-xl ring-1 ring-line">
+            <Monogram name={suggest.name} category={suggest.category} className="h-11 w-11 shrink-0 text-base" />
+            <span className="min-w-0 flex-1 text-sm leading-snug"><span className="block text-xs text-muted">Goes well with it</span><span className="font-semibold">{suggest.name}</span> <span className="num text-muted">{ksh(suggest.price)}</span></span>
+            <button className="btn shrink-0 bg-dine px-3.5 py-2 text-white" onClick={() => { const s = suggest; setSuggest(null); setPicking(s); }}>Add</button>
             <button aria-label="No thanks" className="grid h-8 w-8 place-items-center text-faint" onClick={() => setSuggest(null)}><X className="h-4 w-4" /></button>
           </div>
         </div>
@@ -184,9 +226,9 @@ export default function GuestMenu() {
 
       {/* Basket bar */}
       {count > 0 && view === 'menu' && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 p-3 backdrop-blur">
-          <button onClick={() => setBasketOpen(true)} className="mx-auto flex w-full max-w-xl items-center justify-between rounded-xl bg-dine px-4 py-3.5 font-semibold text-white">
-            <span className="flex items-center gap-2"><ShoppingBag className="h-5 w-5" /> Your order · {count}</span>
+        <div className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-paper via-paper/95 to-transparent px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
+          <button onClick={() => setBasketOpen(true)} className="mx-auto flex w-full max-w-xl items-center justify-between rounded-2xl bg-dine px-4 py-3.5 font-semibold text-white shadow-lg shadow-dine/25 transition active:scale-[0.99]">
+            <span className="flex items-center gap-2.5"><span className="grid h-7 min-w-7 place-items-center rounded-full bg-white/20 px-1.5 text-sm">{count}</span> View your order</span>
             <span className="num flex items-center gap-1">{ksh(total)} <ChevronRight className="h-4 w-4" /></span>
           </button>
         </div>
@@ -212,6 +254,16 @@ export default function GuestMenu() {
   );
 }
 
+const sectionId = (c: string) => `section-${c.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+
+// A dish without a photo still gets a face: its initial on a warm tint chosen by its section, so the list has rhythm.
+const TINTS = ['#FDE7D9', '#E9F3E6', '#FFF1CC', '#E7EEFB', '#F5E6F0', '#E3F2F1'];
+const INKS = ['#9A3412', '#2F6B2A', '#8A5A00', '#2D4F9E', '#8B2F6B', '#1F6A64'];
+function Monogram({ name, category, className }: { name: string; category: string; className?: string }) {
+  const i = [...(category || name)].reduce((n, ch) => n + ch.charCodeAt(0), 0) % TINTS.length;
+  return <span aria-hidden className={cn('grid place-items-center rounded-xl text-xl font-bold', className)} style={{ background: TINTS[i], color: INKS[i] }}>{name.replace(/[^A-Za-z]/g, '').charAt(0).toUpperCase() || '•'}</span>;
+}
+
 function Page({ children }: { children: React.ReactNode }) {
   return <div className="min-h-screen bg-paper text-ink">{children}</div>;
 }
@@ -226,13 +278,14 @@ function Drawer({ title, onClose, children, footer }: { title: string; onClose: 
   }, [onClose]);
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center" onClick={onClose}>
-      <div role="dialog" aria-label={title} className="flex max-h-[90vh] w-full max-w-xl flex-col rounded-t-2xl bg-white sm:rounded-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-start justify-between gap-3 px-5 pt-5 pb-3">
-          <h2 className="text-lg font-bold">{title}</h2>
+      <div role="dialog" aria-label={title} className="flex max-h-[90vh] w-full max-w-xl flex-col rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+        <span className="mx-auto mt-2.5 h-1.5 w-10 rounded-full bg-line sm:hidden" aria-hidden />
+        <div className="flex items-start justify-between gap-3 px-5 pt-3 pb-3">
+          <h2 className="text-xl leading-snug font-bold tracking-tight">{title}</h2>
           <button aria-label="Close" onClick={onClose} className="-mt-1 -mr-2 grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-paper"><X className="h-5 w-5" /></button>
         </div>
         <div className="overflow-y-auto px-5 pb-4">{children}</div>
-        {footer && <div className="border-t border-line p-4">{footer}</div>}
+        {footer && <div className="border-t border-line px-4 pt-3.5 pb-[calc(env(safe-area-inset-bottom)+0.875rem)]">{footer}</div>}
       </div>
     </div>
   );
@@ -252,10 +305,16 @@ function Picker({ dish, onClose, onAdd }: { dish: Dish; onClose: () => void; onA
         </button>
       </div>
     }>
-      {dish.description && <p className="-mt-1 text-sm text-muted">{dish.description}</p>}
+      <div className="-mt-1 flex items-start gap-3.5">
+        <Monogram name={dish.name} category={dish.category} className="h-16 w-16 shrink-0" />
+        <div className="min-w-0">
+          {dish.description && <p className="text-sm text-muted">{dish.description}</p>}
+          <p className="num mt-1 font-bold">{ksh(dish.price)}</p>
+        </div>
+      </div>
       {dish.options.map((g) => (
-        <fieldset key={g.name} className="mt-5">
-          <legend className="mb-2 text-sm font-semibold">{g.name}</legend>
+        <fieldset key={g.name} className="mt-6">
+          <legend className="mb-2.5 flex w-full items-center justify-between text-sm font-semibold">{g.name}<span className="rounded-full bg-paper px-2 py-0.5 text-[11px] font-semibold text-muted">Choose 1</span></legend>
           <div className="flex flex-wrap gap-2">
             {g.choices.map((c) => (
               <button key={c} type="button" onClick={() => setChoices({ ...choices, [g.name]: c })} aria-pressed={choices[g.name] === c}
@@ -266,8 +325,8 @@ function Picker({ dish, onClose, onAdd }: { dish: Dish; onClose: () => void; onA
           </div>
         </fieldset>
       ))}
-      <label className="mt-5 block">
-        <span className="mb-1.5 block text-sm font-semibold">Anything the kitchen should know?</span>
+      <label className="mt-6 block">
+        <span className="mb-1.5 block text-sm font-semibold">Anything the kitchen should know? <span className="font-normal text-muted">(optional)</span></span>
         <input className="field" value={note} onChange={(e) => setNote(e.target.value)} maxLength={200} placeholder="e.g. no onions, allergic to nuts" />
       </label>
     </Drawer>
@@ -310,9 +369,10 @@ function Basket({ menu, cart, setCart, onClose, onSend }: {
     }>
       <ul className="divide-y divide-line">
         {cart.map((l) => (
-          <li key={l.key} className="flex items-start gap-3 py-3">
+          <li key={l.key} className="flex items-center gap-3 py-3">
+            <Monogram name={l.dish.name} category={l.dish.category} className="h-12 w-12 shrink-0 text-base" />
             <div className="min-w-0 flex-1">
-              <p className="font-semibold">{l.dish.name}</p>
+              <p className="font-semibold leading-snug">{l.dish.name}</p>
               {(optionText(l.choices) || l.note) && <p className="text-sm text-muted">{[optionText(l.choices), l.note].filter(Boolean).join(' · ')}</p>}
               <p className="num mt-0.5 text-sm">{ksh(l.dish.price * l.quantity)}</p>
             </div>
@@ -359,22 +419,28 @@ function MyTable({ menu, visit, setVisit, call, onMore }: {
         const s = STATUS[o.status];
         const step = ['New', 'Preparing', 'Ready', 'Served'].indexOf(o.status);
         return (
-          <section key={o.id} className="rounded-xl bg-white p-4 ring-1 ring-line">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold tracking-wider text-faint uppercase">Order {o.number}{o.guestName ? ` · ${o.guestName}` : ''}</p>
-                <p className={cn('mt-1 font-semibold', s.tone === 'good' ? 'text-good' : s.tone === 'warn' ? 'text-warn' : 'text-ink')}>{s.guest}</p>
-              </div>
-              <span className="num text-sm font-semibold">{ksh(o.total)}</span>
+          <section key={o.id} className="rounded-2xl bg-white p-4 ring-1 ring-line">
+            <div className="flex items-center justify-between gap-3">
+              <p className="min-w-0 truncate text-xs font-semibold tracking-wider text-faint uppercase">Order {o.number}{o.guestName ? ` · ${o.guestName}` : ''}</p>
+              <span className="num shrink-0 text-sm font-bold whitespace-nowrap">{ksh(o.total)}</span>
             </div>
+            <p className={cn('mt-1.5 text-[17px] leading-snug font-semibold', s.tone === 'good' ? 'text-good' : s.tone === 'warn' ? 'text-warn' : 'text-ink')}>{s.guest}</p>
             {step >= 0 && (
-              <div className="mt-3 grid grid-cols-4 gap-1.5" aria-hidden>
-                {[0, 1, 2, 3].map((i) => <span key={i} className={cn('h-1.5 rounded-full', i <= step ? 'bg-dine' : 'bg-line')} />)}
-              </div>
+              <ol className="mt-3.5 grid grid-cols-4 gap-1.5" aria-label="Progress">
+                {['Sent', 'Cooking', 'Ready', 'Served'].map((label, i) => (
+                  <li key={label} aria-current={i === step ? 'step' : undefined}>
+                    <span className={cn('block h-1.5 rounded-full transition', i <= step ? 'bg-dine' : 'bg-line')} />
+                    <span className={cn('mt-1.5 block text-[11px] font-semibold', i === step ? 'text-dine' : i < step ? 'text-ink-2' : 'text-faint')}>{label}</span>
+                  </li>
+                ))}
+              </ol>
             )}
-            <ul className="mt-3 space-y-1 text-sm">
+            <ul className="mt-3.5 space-y-2 border-t border-line pt-3 text-sm">
               {o.lines.map((l, i) => (
-                <li key={i} className="flex justify-between gap-3"><span>{l.quantity} × {l.name}{l.options && <span className="text-muted"> · {l.options}</span>}{l.note && <span className="text-muted"> · {l.note}</span>}</span></li>
+                <li key={i} className="flex justify-between gap-3">
+                  <span className="min-w-0"><span className="font-medium">{l.quantity} × {l.name}</span>{(l.options || l.note) && <span className="block text-xs text-muted">{[l.options, l.note].filter(Boolean).join(' · ')}</span>}</span>
+                  <span className="num shrink-0 text-muted">{ksh(l.unitPrice * l.quantity)}</span>
+                </li>
               ))}
             </ul>
           </section>
@@ -392,7 +458,7 @@ function MyTable({ menu, visit, setVisit, call, onMore }: {
       )}
 
       {/* The bill */}
-      <section ref={payRef} className="rounded-xl bg-white p-4 ring-1 ring-line">
+      <section ref={payRef} className="rounded-2xl bg-white p-4 ring-1 ring-line">
         <div className="flex items-center justify-between">
           <h2 className="flex items-center gap-2 font-bold"><Receipt className="h-4 w-4 text-dine" /> The bill</h2>
           <span className="num text-lg font-bold">{ksh(visit.total)}</span>

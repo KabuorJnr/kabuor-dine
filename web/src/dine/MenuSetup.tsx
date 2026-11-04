@@ -15,6 +15,7 @@ export default function MenuSetup() {
   const manage = can(s, 'dine.manage');
   const { data, error, reload } = useApi<MenuData>('/dine/menu');
   const [q, setQ] = useState('');
+  const [section, setSection] = useState('');
   const [editing, setEditing] = useState<Dish | 'new' | null>(null);
   const [busy, setBusy] = useState('');
   const [problem, setProblem] = useState('');
@@ -44,11 +45,23 @@ export default function MenuSetup() {
           <button className="btn bg-dine text-white hover:bg-dine-hover" onClick={() => setEditing('new')}><Plus className="h-4 w-4" /> Add a dish</button>
         </>} />
       {problem && <ErrorNote>{problem}</ErrorNote>}
-      <SearchBox value={q} onChange={setQ} placeholder="Find a dish or drink" />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="sm:w-72"><SearchBox value={q} onChange={setQ} placeholder="Find a dish or drink" /></div>
+        {categories.length > 1 && (
+          <div className="no-scrollbar -mx-4 flex gap-1.5 overflow-x-auto px-4 sm:mx-0 sm:px-0" role="tablist" aria-label="Menu sections">
+            {['', ...categories].map((c) => (
+              <button key={c || 'all'} role="tab" aria-selected={section === c} onClick={() => setSection(c)}
+                className={cn('shrink-0 rounded-full px-3.5 py-1.5 text-sm font-semibold ring-1 transition', section === c ? 'bg-ink text-white ring-ink' : 'bg-white text-ink-2 ring-line hover:bg-paper')}>
+                {c || 'All'} <span className={cn('ml-0.5 text-xs', section === c ? 'text-white/70' : 'text-faint')}>{c ? on.filter((d) => (d.category || 'Menu') === c).length : on.length}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
-      {categories.map((c) => (
+      {categories.filter((c) => !section || c === section).map((c) => (
         <section key={c} className="card overflow-hidden">
-          <h2 className="border-b border-line bg-paper px-4 py-2 text-sm font-bold">{c}</h2>
+          <h2 className="flex items-center justify-between border-b border-line bg-paper px-4 py-2.5 text-sm font-bold">{c}<span className="text-xs font-medium text-faint">{on.filter((d) => (d.category || 'Menu') === c).length} items</span></h2>
           <ul className="divide-y divide-line">
             {on.filter((d) => (d.category || 'Menu') === c).map((d) => (
               <li key={d.id} className={cn('flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3', d.hidden && 'opacity-60')}>
@@ -64,11 +77,15 @@ export default function MenuSetup() {
                   </p>
                 </div>
                 <span className="num w-24 text-right font-semibold">{ksh(d.price)}</span>
-                <div className="flex items-center gap-1">
-                  <button className={cn('btn px-3 py-1.5', d.markedSoldOut ? 'btn-primary' : 'btn-ghost')} disabled={busy !== ''}
-                    onClick={() => act(d.id, () => api(`/dine/menu/${d.id}/sold-out`, { body: { soldOut: !d.markedSoldOut } }))}>
-                    {d.markedSoldOut ? 'Back on' : 'Finished'}
-                  </button>
+                <div className="flex items-center gap-2">
+                  <label className="flex cursor-pointer items-center gap-2 text-xs font-semibold text-muted select-none">
+                    <span className="hidden sm:inline">{d.markedSoldOut ? 'Finished' : 'Available'}</span>
+                    <button type="button" role="switch" aria-checked={!d.markedSoldOut} aria-label={`${d.name} available`} disabled={busy !== ''}
+                      onClick={() => act(d.id, () => api(`/dine/menu/${d.id}/sold-out`, { body: { soldOut: !d.markedSoldOut } }))}
+                      className={cn('relative h-6 w-11 shrink-0 rounded-full transition', d.markedSoldOut ? 'bg-line' : 'bg-good')}>
+                      <span className={cn('absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all', d.markedSoldOut ? 'left-0.5' : 'left-[22px]')} />
+                    </button>
+                  </label>
                   {manage && <button className="grid h-9 w-9 place-items-center rounded-md text-muted hover:bg-paper" aria-label={`Edit ${d.name}`} onClick={() => setEditing(d)}><Pencil className="h-4 w-4" /></button>}
                 </div>
               </li>

@@ -49,11 +49,29 @@ export default function Floor() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Floor</h1>
-          <p className="mt-0.5 text-sm text-muted">{seated} of {data.tables.length} tables seated · {ksh(owing)} still to collect · {data.payMode === 'PayFirst' ? 'guests pay when they order' : 'guests pay at the end'}</p>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-[28px]">Floor</h1>
+          <p className="mt-0.5 text-sm text-muted">{data.payMode === 'PayFirst' ? 'Guests pay when they order' : 'Guests pay at the end'} · updates by itself</p>
         </div>
         {!data.open && <Status tone="warn">Not taking orders from tables (Settings)</Status>}
       </div>
+
+      {/* The room at a glance */}
+      <dl className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+        {([
+          ['Seated', `${seated}/${data.tables.length}`, Users, 'text-ink'],
+          ['To confirm', data.tables.filter((t) => t.session?.awaitingApproval).length, ShieldCheck, 'text-warn'],
+          ['Ready to serve', data.tables.reduce((n, t) => n + (t.session?.ready ?? 0), 0), ChefHat, 'text-good'],
+          ['To collect', ksh(owing), Receipt, 'text-ink'],
+        ] as const).map(([label, value, Icon, tone]) => (
+          <div key={label} className="flex items-center gap-3 rounded-xl bg-white px-3.5 py-3 ring-1 ring-line">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-dine-soft text-dine"><Icon className="h-[18px] w-[18px]" /></span>
+            <span className="min-w-0">
+              <dt className="truncate text-xs font-medium text-muted">{label}</dt>
+              <dd className={cn('num truncate text-lg leading-tight font-bold', tone)}>{value}</dd>
+            </span>
+          </div>
+        ))}
+      </dl>
 
       {urgent.length > 0 && (
         <section className="card overflow-hidden ring-2 ring-dine/40">
@@ -74,7 +92,7 @@ export default function Floor() {
 
       {areas.map((area) => (
         <section key={area || 'main'}>
-          {areas.length > 1 && <h2 className="mb-2 text-xs font-semibold tracking-wider text-faint uppercase">{area || 'Main room'}</h2>}
+          {areas.length > 1 && <h2 className="mb-2.5 flex items-center gap-2 text-xs font-semibold tracking-wider text-faint uppercase">{area || 'Main room'}<span className="h-px flex-1 bg-line" /></h2>}
           <div className="grid grid-cols-[repeat(auto-fill,minmax(10.5rem,1fr))] gap-3">
             {data.tables.filter((t) => t.area === area).map((t) => <TableCard key={t.id} t={t} onOpen={() => setOpen(t)} />)}
           </div>
@@ -98,8 +116,8 @@ function TableCard({ t, onOpen }: { t: FloorTable; onOpen: () => void }) {
   const n = needs(t);
   const tone = !s ? 'free' : s.status === 'Paid' ? 'paid' : n.some((x) => x.tone === 'bad' || x.key === 'approve') ? 'urgent' : n.length ? 'attention' : 'seated';
   return (
-    <button onClick={onOpen} className={cn('relative flex min-h-[8.5rem] flex-col rounded-xl p-3.5 text-left ring-1 transition hover:-translate-y-0.5 hover:shadow-md',
-      tone === 'free' && 'bg-white ring-line',
+    <button onClick={onOpen} className={cn('relative flex min-h-[8.5rem] flex-col rounded-2xl p-3.5 text-left ring-1 transition hover:-translate-y-0.5 hover:shadow-md',
+      tone === 'free' && 'border border-dashed border-ink-2/20 bg-white/50 ring-transparent text-muted hover:bg-white',
       tone === 'seated' && 'bg-dine-soft/60 ring-dine/25',
       tone === 'attention' && 'bg-dine-soft ring-2 ring-dine/60',
       tone === 'urgent' && 'bg-warn-soft ring-2 ring-warn',
@@ -110,7 +128,7 @@ function TableCard({ t, onOpen }: { t: FloorTable; onOpen: () => void }) {
         <span className="flex items-center gap-1 text-xs text-muted"><Users className="h-3.5 w-3.5" />{t.seats}</span>
       </span>
       {!s ? (
-        <span className="mt-auto text-sm text-muted">Free</span>
+        <span className="mt-auto flex items-center gap-1.5 text-sm text-faint"><span className="h-1.5 w-1.5 rounded-full bg-good" /> Free · tap to seat</span>
       ) : (
         <>
           <span className="mt-1 flex items-center gap-1 text-xs text-muted"><Clock className="h-3.5 w-3.5" /> {mins(s.minutes)}</span>

@@ -162,7 +162,7 @@ function App() {
             )
           }
         />
-        <Route path="today" element={<Today />} />
+        <Route path="today" element={session.company.product === 'dine' ? <Navigate to="/dine" replace /> : <Today />} />
         <Route path="w/:module" element={<Workspace />} />
         <Route path="portal" element={<MyPortal />} />
         <Route path="pos" element={<Need p="pos"><Pos /></Need>} />

@@ -64,6 +64,13 @@ export default function Shell({ session }: { session: Session }) {
       ]
     : isEmployee
     ? [{ to: '/portal', label: 'My Portal', icon: UserRound, end: true }]
+    : session.company.product === 'dine'
+    ? ([
+        { to: '/dine', label: 'Dine', icon: Store, end: true },
+        can(session, 'sales.view') && { to: '/invoices', label: 'Bills', icon: FileText },
+        can(session, 'sales.view') && { to: '/money-in', label: t('Money in'), icon: Wallet },
+        can(session, 'stock.view') && { to: '/stock', label: t('Stock'), icon: Package },
+      ].filter(Boolean) as Link[])
     : [
         { to: '/', label: t('Today'), icon: Home, end: true },
         ...([
@@ -118,7 +125,9 @@ export default function Shell({ session }: { session: Session }) {
     <div className="min-h-svh lg:grid lg:grid-cols-[15rem_1fr] print:block">
       <aside className="sticky top-0 hidden h-svh flex-col border-r border-line bg-white px-3 py-4 lg:flex print:!hidden">
         <div className="min-w-0 px-2 leading-tight">
-          <img src="/brand/kabuor-erp-logo-blue.svg" alt="Kabuor ERP" className="h-5 w-auto" />
+          {session.company.product === 'dine'
+            ? <span className="flex items-center gap-2"><span className="grid h-7 w-7 place-items-center rounded-lg bg-dine text-sm font-bold text-white">D</span><span className="leading-tight"><span className="block text-sm font-bold">Kabuor Dine</span><span className="block text-2xs font-semibold tracking-wider text-faint uppercase">Back office</span></span></span>
+            : <img src="/brand/kabuor-erp-logo-blue.svg" alt="Kabuor ERP" className="h-5 w-auto" />}
           <p className="mt-1.5 truncate text-xs text-muted">
             {session.user.isPlatformAdmin ? 'Platform Admin Console' : session.company.name}
           </p>

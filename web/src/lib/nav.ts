@@ -2,7 +2,7 @@
 // one module's when the person works in that module's workspace; the workspace home lists the same pages.
 import {
   Armchair, BarChart3, BookOpen, Bot, Briefcase, Building2, Landmark, LayoutDashboard, Link2, MessageCircleQuestion, CalendarDays, ListChecks, ShieldCheck, Factory, FileText, Handshake, Home, Kanban, Megaphone, Package, Quote, Settings as Cog, ShoppingBag, Store, Truck, MapPinned, UserRound, Users, Wallet, Banknote,
-  Wrench, ClipboardList, Gavel, ClipboardCheck, Network, ChartPie, Workflow, PiggyBank, FileLock2, HandCoins, Layers,
+  Wrench, ClipboardList, Gavel, ClipboardCheck, Network, ChartPie, Workflow, PiggyBank, FileLock2, HandCoins, Layers, UtensilsCrossed,
 } from 'lucide-react';
 import { can, canView, type Session } from './api';
 import type { ModuleKey } from './modules';
@@ -15,6 +15,33 @@ export type VisibleGroup = { title: string; module?: ModuleKey; links: NavLink[]
 export function navGroups(session: Session, t: (k: Key) => string): VisibleGroup[] {
   const isPlatformAdmin = session.user.isPlatformAdmin === true;
   const isEmployee = session.user.role === 'Employee';
+  // A Kabuor Dine restaurant's back office: only what a restaurant runs on (bills, money, stock, reports, the team),
+  // never the ERP's planning, campaigns or workspaces. Switching on the full ERP (a bigger plan) brings those back.
+  if (session.company.product === 'dine' && !isEmployee && !isPlatformAdmin) {
+    const dine: NavGroup[] = [
+      { title: '', links: [{ to: '/dine', label: 'Back to Kabuor Dine', icon: UtensilsCrossed, end: true }] },
+      { title: 'Sales', links: [
+        can(session, 'sales.view') && { to: '/invoices', label: 'Bills & invoices', icon: FileText },
+        can(session, 'sales.view') && { to: '/money-in', label: t('Money in'), icon: Wallet },
+        can(session, 'sales.view') && { to: '/customers', label: 'Guests & customers', icon: Users },
+      ] },
+      { title: 'Stock & buying', links: [
+        can(session, 'stock.view') && { to: '/stock', label: t('Stock'), icon: Package },
+        can(session, 'buy.view') && { to: '/purchases', label: 'Purchases', icon: ShoppingBag },
+        can(session, 'buy.view') && { to: '/suppliers', label: 'Suppliers', icon: Truck },
+      ] },
+      { title: 'Reports', links: [
+        can(session, 'reports') && { to: '/reports', label: 'Sales & profit', icon: BarChart3 },
+        can(session, 'reports') && { to: '/finance', label: 'Money overview', icon: Landmark },
+      ] },
+      { title: 'Team', links: [
+        can(session, 'people') && { to: '/people', label: 'Staff', icon: UserRound },
+        can(session, 'people') && { to: '/payroll', label: 'Payroll', icon: Banknote },
+      ] },
+      { title: '', links: [{ to: '/security', label: 'Sign-in security', icon: ShieldCheck }, can(session, 'admin') && { to: '/settings', label: t('Settings'), icon: Cog }] },
+    ];
+    return dine.map((g) => ({ ...g, links: g.links.filter(Boolean) as NavLink[] })).filter((g) => g.links.length);
+  }
 
   // Each section is one of the business OS modules, shown in its colour with its icon so it's known at a glance.
   const groups: NavGroup[] = isEmployee
