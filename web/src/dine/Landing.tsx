@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router';
 import { BarChart3, BellRing, Check, ChefHat, QrCode, ShieldCheck, Smartphone, UtensilsCrossed } from 'lucide-react';
 import { useApi } from '../lib/api';
-import { DineLogo, DineMark } from './Logo';
+import { DineLockup, DineMark } from './Logo';
 
 const STEPS = [
   { icon: QrCode, title: 'Scan', text: 'The guest scans the card on the table. The menu opens on their phone: no app, no sign-in.' },
@@ -33,7 +33,7 @@ export default function Landing() {
     <div className="min-h-screen bg-white text-ink">
       <header className="bg-gradient-to-b from-dine-soft via-cream to-white text-espresso">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
-          <DineLogo size="md" />
+          <Link to="/" aria-label="Kabuor Dine home"><DineLockup className="h-12 sm:h-14" /></Link>
           <nav className="flex items-center gap-2 text-sm font-semibold">
             <Link to="/signin" className="rounded-md px-3 py-2 text-ink-2 hover:text-ink">Sign in</Link>
             <Link to="/signup" className="btn bg-dine px-4 py-2 text-white hover:bg-dine-hover">Start</Link>

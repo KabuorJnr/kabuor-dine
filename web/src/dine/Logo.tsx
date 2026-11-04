@@ -2,6 +2,11 @@
 // same family as Kabuor Builds and Kabuor ERP (brand/logo.html holds the master artwork).
 import { cn } from '../lib/format';
 
+/** The full lockup as drawn in brand/logo.html: the cloche, "Kabuor / Dine" stacked, and "Karibu mezani." */
+export function DineLockup({ className, dark = false }: { className?: string; dark?: boolean }) {
+  return <img src={dark ? '/brand/kabuor-dine-logo-on-dark.png' : '/brand/kabuor-dine-logo.png'} alt="Kabuor Dine. Karibu mezani." className={cn('w-auto', className)} />;
+}
+
 export function DineMark({ className, dark = false }: { className?: string; dark?: boolean }) {
   return <img src={dark ? '/brand/kabuor-dine-mark-on-dark.svg' : '/brand/kabuor-dine-mark.svg'} alt="" aria-hidden className={cn('w-auto', className)} />;
 }

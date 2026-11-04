@@ -37,9 +37,9 @@
   --color-line: #e6e7f0;
   --color-paper: #f7f7fb;
   --color-card: #ffffff;
-  --color-brand: #2357f5;
-  --color-brand-hover: #3a6bff;
-  --color-brand-soft: #e8eeff;
+  --color-brand: #9C6B4A; /* Kabuor Dine: faded brown, not the ERP's blue */
+  --color-brand-hover: #86593B;
+  --color-brand-soft: #F4ECE3;
   --color-indigo: #3a2bc9;
   --color-gold: #f2c14e;
   --color-mpesa: #1e8e3e;
