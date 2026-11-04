@@ -34,8 +34,39 @@ export type MockAccount = {
   session: Session;
 };
 
-// One-click test accounts: none in this repository (it's public). Sign up a test restaurant locally instead.
-export const MOCK_ACCOUNTS: MockAccount[] = [];
+// One-click test restaurant account for local development:
+export const MOCK_ACCOUNTS: MockAccount[] = !import.meta.env.DEV ? [] : [
+  {
+    id: 'dine-chef',
+    name: 'Chef Rooney',
+    email: 'chef@kabuor.co.ke',
+    role: 'Owner',
+    roleTitle: 'Restaurant Owner & Chef',
+    emoji: '🍽️',
+    companyName: 'Ziwa Grill & Lounge',
+    password: 'admin',
+    session: {
+      token: 'demo-dine-token',
+      isLocal: false,
+      user: {
+        id: '22222222-2222-2222-2222-222222222222',
+        name: 'Chef Rooney',
+        email: 'chef@kabuor.co.ke',
+        role: 'Owner',
+        language: 'en',
+        permissions: ['read', 'sales.view', 'sell', 'pos', 'crm', 'finance', 'reports', 'stock.view', 'stock', 'buy.view', 'buy', 'make', 'people', 'fleet.view', 'fleet', 'admin', 'verified.view', 'verified.share', 'dine', 'dine.manage'],
+      },
+      company: {
+        id: '11111111-1111-1111-1111-111111111111',
+        name: 'Ziwa Grill & Lounge',
+        kraPin: 'P051234567Z',
+        vatRegistered: true,
+        industry: 'restaurant',
+        product: 'dine',
+      },
+    },
+  },
+];
 
 export const DEMO_OWNER: Session | undefined = MOCK_ACCOUNTS[0]?.session;
 export const DEMO_SARAH: Session = {

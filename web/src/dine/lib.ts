@@ -85,5 +85,10 @@ export function chime() {
 /** Minutes as a waiter reads them: "4 min", "1 h 05". */
 export const mins = (m: number) => (m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')}`);
 
-/** The guest's link for a table's QR. */
-export const tableUrl = (token: string) => `${window.location.origin}/m/${token}`;
+/** The guest's link for a table's QR. Automatically uses local Wi-Fi IP in dev so phones scanning the screen work directly. */
+export const tableUrl = (token: string) => {
+  const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  const host = isLocal ? `192.168.8.12:${window.location.port || '5173'}` : window.location.host;
+  const proto = typeof window !== 'undefined' ? window.location.protocol : 'http:';
+  return `${proto}//${host}/m/${token}`;
+};

@@ -23,7 +23,7 @@ export default defineConfig({
   ],
 
   // API_URL points the dev server at another API (a second copy on a scratch database, say).
-  server: { port: 5173, proxy: { '/api': process.env.API_URL ?? 'http://localhost:5080' } },
+  server: { port: 5173, host: true, proxy: { '/api': process.env.API_URL ?? 'http://localhost:5080' } },
   build: { outDir: 'dist', emptyOutDir: true },
 
   ssr: {

@@ -19,6 +19,7 @@ public static partial class SchemaSync
         if (db.Database.IsNpgsql()) await Migrate(db);
         else await SyncSqlite(db);
 
+        await SeedSampleRestaurant(db);
     }
 
     static async Task Migrate(ErpDb db)
@@ -186,5 +187,127 @@ public static partial class SchemaSync
             catch (JsonException) { }
         }
         return (ids, names);
+    }
+
+    public static readonly Guid SampleRestaurantCompanyId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+    public static readonly Guid SampleChefUserId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+    public static async Task SeedSampleRestaurant(ErpDb db)
+    {
+        try
+        {
+            var company = await db.Companies.FirstOrDefaultAsync(c => c.Id == SampleRestaurantCompanyId || c.Name == "Ziwa Grill & Lounge");
+            if (company is null)
+            {
+                company = new Domain.Company
+                {
+                    Id = SampleRestaurantCompanyId,
+                    Name = "Ziwa Grill & Lounge",
+                    Email = "chef@kabuor.co.ke",
+                    Phone = "0712345678",
+                    County = "Nairobi",
+                    Plan = "dine",
+                    Product = "dine",
+                    Slug = "ziwa-grill",
+                    PortalEnabled = true,
+                    PaidUntil = DateTimeOffset.UtcNow.AddYears(10)
+                };
+                db.Companies.Add(company);
+                await db.SaveChangesAsync();
+            }
+
+            var hasher = new Microsoft.AspNetCore.Identity.PasswordHasher<Domain.User>();
+            var user = await db.Users.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Email == "chef@kabuor.co.ke" || u.Id == SampleChefUserId);
+            if (user is null)
+            {
+                user = new Domain.User
+                {
+                    Id = SampleChefUserId,
+                    CompanyId = company.Id,
+                    Name = "Chef Rooney",
+                    Email = "chef@kabuor.co.ke",
+                    Phone = "0712345678",
+                    Role = Domain.Role.Owner,
+                    TwoFactorEnabled = false,
+                    Active = true,
+                    CreatedAt = DateTimeOffset.UtcNow.AddDays(-30),
+                    LastSignInAt = DateTimeOffset.UtcNow,
+                    PasswordHash = hasher.HashPassword(null!, "admin")
+                };
+                db.Users.Add(user);
+                await db.SaveChangesAsync();
+            }
+
+            // DineSettings
+            var hasSettings = await db.DineSettings.IgnoreQueryFilters().AnyAsync(s => s.CompanyId == company.Id);
+            if (!hasSettings)
+            {
+                db.DineSettings.Add(new Domain.DineSettings { CompanyId = company.Id, Welcome = "Welcome to Ziwa Grill & Lounge! Tap below to order." });
+                await db.SaveChangesAsync();
+            }
+
+            // Tables
+            var hasTables = await db.DineTables.IgnoreQueryFilters().AnyAsync(t => t.CompanyId == company.Id);
+            if (!hasTables)
+            {
+                var areas = new[] { "Main Dining", "Main Dining", "Terrace", "Terrace", "VIP Lounge", "Bar" };
+                for (var i = 1; i <= 6; i++)
+                {
+                    db.DineTables.Add(new Domain.DineTable
+                    {
+                        CompanyId = company.Id,
+                        Name = $"Table {i}",
+                        Area = areas[i - 1],
+                        Seats = i == 5 ? 8 : i == 6 ? 2 : 4,
+                        Token = Dine.DineService.NewToken()
+                    });
+                }
+                await db.SaveChangesAsync();
+            }
+
+            // Dishes & Menu entries
+            var hasMenu = await db.DineMenu.IgnoreQueryFilters().AnyAsync(m => m.CompanyId == company.Id);
+            if (!hasMenu)
+            {
+                (string Name, long Price, string Cat, string Station, string Desc, string Options, bool Pop)[] dishes =
+                [
+                    ("Nyama Choma (1 kg)", 1_800_00, "Grill", "Kitchen", "Tender prime goat slow-roasted over natural charcoal with fresh kachumbari.", "Doneness: Medium | Well Done\nSide: Ugali | Chips | Mukimo", true),
+                    ("Whole Tilapia Wet-Fry", 1_200_00, "Fish & Seafood", "Kitchen", "Fresh lake tilapia deep-fried and simmered in rich tomato, garlic, and coriander sauce.", "Side: Brown Ugali | White Ugali | Chips", true),
+                    ("Kuku Choma (Full)", 1_600_00, "Grill", "Kitchen", "Marinated organic kienyeji chicken charbroiled to perfection.", "Spice: Mild | Pili Pili Hot\nSide: Ugali | Chips", false),
+                    ("Loaded Beef Burger", 850_00, "Quick Bites", "Kitchen", "Juicy 200g beef patty with melted cheddar, caramelized onions, and house barbecue sauce.", "Side: French Fries | Onion Rings", true),
+                    ("Cold Tusker Lager (500ml)", 350_00, "Drinks", "Bar", "Ice-cold Kenyan classic lager brewed from golden malt.", "Temperature: Ice Cold | Room Temp", false),
+                    ("Signature Dawa Cocktail", 650_00, "Drinks", "Bar", "Vodka, fresh lime juice, and pure wild acacia honey muddled with cracked ice.", "Strength: Regular | Extra Strong", true),
+                    ("Fresh Passion Juice", 300_00, "Soft Drinks", "Bar", "Freshly squeezed sweet passion fruit juice.", "Ice: With Ice | No Ice", false),
+                    ("Masala Chips", 400_00, "Sides", "Kitchen", "Crispy potato chips tossed in spicy masala sauce, fresh coriander, and lemon.", "Spice: Medium | Hot", false)
+                ];
+
+                foreach (var d in dishes)
+                {
+                    var item = new Domain.Item
+                    {
+                        CompanyId = company.Id,
+                        Name = d.Name,
+                        Price = d.Price,
+                        Unit = "portion",
+                        Active = true
+                    };
+                    db.Items.Add(item);
+                    await db.SaveChangesAsync();
+
+                    db.DineMenu.Add(new Domain.DineMenuEntry
+                    {
+                        CompanyId = company.Id,
+                        ItemId = item.Id,
+                        Category = d.Cat,
+                        Station = d.Station,
+                        Description = d.Desc,
+                        Options = d.Options,
+                        Popular = d.Pop
+                    });
+                }
+                await db.SaveChangesAsync();
+            }
+        }
+        catch { /* best effort sample seed */ }
     }
 }
