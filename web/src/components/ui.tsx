@@ -144,6 +144,29 @@ export function Field({ label, hint, children, className }: { label: string; hin
   );
 }
 
+/** A whole-number box that can be cleared while typing: what you type stays as typed, the value passes up as soon
+ * as it is a number in range, and leaving the box puts it back in range (empty becomes the minimum). */
+export function NumberInput({ value, onChange, min = 1, max, className, ...rest }: {
+  value: number; onChange: (n: number) => void; min?: number; max?: number; className?: string; 'aria-label'?: string;
+}) {
+  const [text, setText] = useState(String(value));
+  useEffect(() => { setText((t) => (Number(t) === value && t !== '' ? t : String(value))); }, [value]);
+  const clamp = (n: number) => Math.max(min, max === undefined ? n : Math.min(max, n));
+  return (
+    <input type="number" inputMode="numeric" min={min} max={max} className={className} value={text} {...rest}
+      onChange={(e) => {
+        setText(e.target.value);
+        const n = Number(e.target.value);
+        if (e.target.value !== '' && Number.isInteger(n) && n === clamp(n)) onChange(n);
+      }}
+      onBlur={() => {
+        const n = clamp(Math.round(Number(text) || min));
+        setText(String(n));
+        if (n !== value) onChange(n);
+      }} />
+  );
+}
+
 // Sheets can open over sheets: Escape closes only the top one, and the page stays still until the last one closes.
 const openSheets: symbol[] = [];
 const SheetContext = createContext<{ footer: HTMLElement | null; close: () => void } | null>(null);

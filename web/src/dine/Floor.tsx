@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { BellRing, Check, ChefHat, CircleDollarSign, Clock, Loader2, Plus, Printer, Receipt, ShieldCheck, Sparkles, UserCheck, Users } from 'lucide-react';
 import { api, can, getSession } from '../lib/api';
 import { cn, ksh } from '../lib/format';
-import { confirmDialog, ErrorNote, Loading, PageError, Sheet, SheetFooter, Status } from '../components/ui';
+import { confirmDialog, ErrorNote, Loading, NumberInput, PageError, Sheet, SheetFooter, Status } from '../components/ui';
 import { chime, mins, optionText, STATUS, usePoll, type Dish, type Visit } from './lib';
 
 type FloorTable = {
@@ -353,7 +353,7 @@ function OrderPad({ tableId, onDone, onBack }: { tableId: string; onDone: () => 
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-semibold">{l.dish.name}</span>
                 <span className="flex items-center gap-2">
-                  <input type="number" min={1} max={50} className="field w-16 py-1.5" value={l.quantity} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, quantity: Math.max(1, Math.min(50, Number(e.target.value) || 1)) } : x)))} aria-label="How many" />
+                  <NumberInput min={1} max={50} className="field w-16 py-1.5" value={l.quantity} onChange={(n) => setLines((ls) => ls.map((x, j) => (j === i ? { ...x, quantity: n } : x)))} aria-label="How many" />
                   <button className="text-sm font-semibold text-bad" onClick={() => setLines(lines.filter((_, j) => j !== i))}>Remove</button>
                 </span>
               </div>

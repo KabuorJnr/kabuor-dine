@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { Copy, Download, ExternalLink, Loader2, Pencil, Plus, Printer, RefreshCw, Trash2 } from 'lucide-react';
 import { api, useApi, useSession } from '../lib/api';
-import { ErrorNote, Field, Loading, PageError, PageHeader, Sheet, SheetFooter, confirmDialog } from '../components/ui';
+import { ErrorNote, Field, Loading, NumberInput, PageError, PageHeader, Sheet, SheetFooter, confirmDialog } from '../components/ui';
 import { printAs } from '../components/PrintDoc';
 import { tableUrl } from './lib';
 import { DineWord } from './Logo';
@@ -152,7 +152,7 @@ function TableSheet({ table, onClose, onSaved }: { table: Table | null; onClose:
       <form onSubmit={submit} className="space-y-4">
         {!table && (
           <Field label="How many tables?" hint="Several at once are numbered after the ones you have.">
-            <input type="number" className="field w-28" min={1} max={100} value={f.count} onChange={(e) => setF({ ...f, count: Math.max(1, Math.min(100, Number(e.target.value) || 1)) })} />
+            <NumberInput className="field w-28" min={1} max={100} value={f.count} onChange={(n) => setF((v) => ({ ...v, count: n }))} />
           </Field>
         )}
         {(table || f.count === 1)
@@ -160,7 +160,7 @@ function TableSheet({ table, onClose, onSaved }: { table: Table | null; onClose:
           : <Field label="Name them"><input className="field" value={f.prefix} onChange={(e) => setF({ ...f, prefix: e.target.value })} maxLength={30} placeholder="Table" /></Field>}
         <div className="grid grid-cols-2 gap-4">
           <Field label="Area"><input className="field" value={f.area} onChange={(e) => setF({ ...f, area: e.target.value })} maxLength={40} placeholder="e.g. Terrace" /></Field>
-          <Field label="Seats"><input type="number" className="field" min={1} max={100} value={f.seats} onChange={(e) => setF({ ...f, seats: Number(e.target.value) || 1 })} /></Field>
+          <Field label="Seats"><NumberInput className="field" min={1} max={100} value={f.seats} onChange={(n) => setF((v) => ({ ...v, seats: n }))} /></Field>
         </div>
         {error && <ErrorNote>{error}</ErrorNote>}
         <SheetFooter><button className="btn bg-dine text-white hover:bg-dine-hover" disabled={busy}>{busy && <Loader2 className="h-4 w-4 animate-spin" />} {table ? 'Save' : 'Add'}</button></SheetFooter>
