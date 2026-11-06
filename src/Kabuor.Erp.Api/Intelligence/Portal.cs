@@ -46,7 +46,7 @@ public sealed class PortalTokens(TokenIssuer tokens)
     }
 }
 
-public sealed class PortalService(ErpDb db, RequestContext ctx, Numbers numbers, ISmsSender sms, PortalTokens tokens, InquiryService inquiries,
+public sealed class PortalService(ErpDb db, Numbers numbers, ISmsSender sms, PortalTokens tokens, InquiryService inquiries,
     SalesService sales, StkService stk, IHostEnvironment env)
 {
     static string Hash(Guid company, string phone, string code) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes($"{company:N}|{phone}|{code}")));

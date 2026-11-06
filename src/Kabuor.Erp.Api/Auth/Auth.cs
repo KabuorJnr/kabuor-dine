@@ -171,7 +171,7 @@ public sealed record PasswordInput(string Current, string New);
 public sealed record AccessGrant(string Phone, string Password, bool Reset);
 public sealed record Session(string Token, object User, object Company, string? Device = null);
 
-public sealed class AuthService(ErpDb db, RequestContext ctx, TokenIssuer tokens, SecretBox box, IConfiguration config, IHostEnvironment env)
+public sealed class AuthService(ErpDb db, RequestContext ctx, TokenIssuer tokens, SecretBox box, IConfiguration config)
 {
     static readonly PasswordHasher<User> Hasher = new();
 

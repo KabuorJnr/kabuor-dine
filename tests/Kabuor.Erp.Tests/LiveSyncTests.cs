@@ -141,7 +141,7 @@ public class LiveSyncTests(ErpFactory factory) : IClassFixture<ErpFactory>
     {
         var owner = await Owner();
         var hr = await As(owner, "HR");
-        Assert.Equal(["people"], (await Ok(await hr.GetAsync("/api/workspaces"))).EnumerateArray().Select(m => m.GetString()).ToArray());
+        Assert.Equal(["people"], (await Ok(await hr.GetAsync("/api/workspaces"))).EnumerateArray().Select(m => m.GetString()!).ToArray());
         Assert.Equal(HttpStatusCode.Forbidden, (await hr.GetAsync("/api/workspaces/finance")).StatusCode);
         await Ok(await hr.GetAsync("/api/workspaces/people"));
         // HR's handoffs never include modules HR can't open.

@@ -154,7 +154,10 @@ public static partial class SchemaSync
                     var fallback = p.Name == "UnitFactor" ? "'1.0'" // lines from before units: one base unit each
                         : enumType.IsEnum && type.Contains("TEXT", StringComparison.OrdinalIgnoreCase) ? $"'{Enum.GetNames(enumType)[0]}'" // enums are stored by name
                         : type.Contains("TEXT", StringComparison.OrdinalIgnoreCase) ? "''" : "0";
+                    // Table, column, type and default all come from the compiled EF model, never from a request.
+                    #pragma warning disable EF1002
                     await db.Database.ExecuteSqlRawAsync($"ALTER TABLE \"{table}\" ADD COLUMN \"{column}\" {type}{(notNull ? $" NOT NULL DEFAULT {fallback}" : "")}");
+                    #pragma warning restore EF1002
                 }
             }
         }
